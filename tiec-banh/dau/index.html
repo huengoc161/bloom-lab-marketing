@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vườn của Bé Đậu</title>
+<meta name="description" content="Chăm Bé Đậu từ hạt nhỏ đến ra quả trong khu vườn quê. Chơi 2 phút!">
+<meta property="og:title" content="Vườn của Bé Đậu">
+<meta property="og:description" content="Chăm Bé Đậu từ hạt nhỏ đến ra quả trong khu vườn quê.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Bố cục: khu vườn (SVG) lấp đầy phía trên, Bé Đậu đứng giữa luống đất; bóng thoại nằm trên vườn; khung trắng chữ đen ở dưới. */
+:root {
+  --bg: #cfe9b8;
+  --ink: #1a1a1a;
+  --ink-soft: #55534c;
+  --leaf: #4f9a3a;
+  --leaf-dark: #2f6b23;
+  --sun: #f2a31b;
+  --btn: #e8774a;
+  --btn-shadow: #b8532c;
+  --line: #e4dccb;
+  --bad: #c0392b;
+  --display: "Baloo 2", "Be Vietnam Pro", system-ui, sans-serif;
+  --body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+/* Game luôn dùng nền vườn sáng và khung trắng chữ đen theo thiết kế, kể cả khi máy bật chế độ tối. */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #2c4a2a; } }
+:root[data-theme="dark"] { --bg: #2c4a2a; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; overflow: hidden; }
+h1, h2 { font-family: var(--display); line-height: 1.15; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+button { font: inherit; }
+:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+
+.app { position: relative; max-width: 480px; height: 100dvh; margin: 0 auto; display: flex; flex-direction: column; overflow: hidden; background: #bfe6fb; }
+@media (min-width: 520px) { .app { box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 20px 60px rgba(30,60,20,.25); } }
+
+/* Vườn */
+.scene { position: relative; flex: 1 1 auto; min-height: 240px; }
+.scene > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.hud { position: absolute; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 0; }
+.stage-pill { background: rgba(255,255,255,.92); border-radius: 999px; padding: 4px 12px 4px 6px; display: flex; align-items: center; gap: 6px;
+  font-family: var(--display); font-weight: 800; font-size: 14px; color: var(--leaf-dark); box-shadow: 0 2px 0 rgba(0,0,0,.08); }
+.stage-pill svg { width: 22px; height: 22px; }
+.tools { display: flex; gap: 4px; background: rgba(255,255,255,.92); border-radius: 999px; padding: 4px 8px; box-shadow: 0 2px 0 rgba(0,0,0,.08); }
+.tools svg { width: 24px; height: 24px; opacity: .28; filter: grayscale(1); transition: opacity .3s, filter .3s, transform .3s; }
+.tools svg.on { opacity: 1; filter: none; }
+.tools svg.new { animation: toolpop .6s cubic-bezier(.3,1.6,.5,1); }
+@keyframes toolpop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+.sign { position: absolute; z-index: 2; left: 50%; top: calc(54px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); text-align: center; pointer-events: none; }
+.sign h1 { font-size: clamp(34px, 10vw, 44px); color: #fff; letter-spacing: .01em;
+  text-shadow: 0 3px 0 #7a4a22, 0 0 2px #7a4a22, 2px 0 0 #7a4a22, -2px 0 0 #7a4a22, 0 -2px 0 #7a4a22, 0 6px 14px rgba(60,30,0,.35); }
+.sign p { margin-top: 2px; font-weight: 700; font-size: 14px; color: #5a3714; background: rgba(255,247,222,.9); display: inline-block; padding: 2px 12px; border-radius: 999px; }
+
+.bubble { position: absolute; z-index: 3; left: 14px; right: 14px; top: calc(54px + env(safe-area-inset-top, 0px));
+  background: #fff; color: var(--ink); border: 3px solid #3b2a1e; border-radius: 20px; padding: 9px 14px;
+  font-family: var(--display); font-weight: 600; font-size: 17px; line-height: 1.32; box-shadow: 0 4px 0 rgba(59,42,30,.18);
+  transition: opacity .25s, transform .25s; }
+.bubble::after { content: ""; position: absolute; bottom: -15px; left: 50%; margin-left: -12px; width: 22px; height: 22px; background: #fff;
+  border-right: 3px solid #3b2a1e; border-bottom: 3px solid #3b2a1e; transform: rotate(45deg) skew(8deg, 8deg); border-bottom-right-radius: 4px; }
+.bubble b { color: var(--leaf-dark); }
+.bubble.hide { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+.bubble.talk { animation: talk .35s ease; }
+@keyframes talk { 0% { transform: scale(.94); opacity: .3; } 100% { transform: none; opacity: 1; } }
+
+/* Khung trắng chữ đen phía dưới */
+.panel { position: relative; z-index: 4; flex: 0 0 auto; background: #fff; color: var(--ink); border-radius: 24px 24px 0 0;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -6px 20px rgba(40,60,20,.16);
+  max-height: 62dvh; overflow-y: auto; }
+.panel::before { content: ""; position: absolute; top: -14px; left: 0; right: 0; height: 16px;
+  background: radial-gradient(circle at 12px 16px, #fff 11px, transparent 12px) 0 0 / 24px 16px repeat-x; }
+.view { display: none; flex-direction: column; gap: 10px; animation: rise .35s ease; }
+.view.active { display: flex; }
+@keyframes rise { from { opacity: .3; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.qnum { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--leaf); }
+.qtext { font-family: var(--display); font-weight: 800; font-size: 19px; line-height: 1.28; color: var(--ink); }
+.opts { display: grid; gap: 8px; }
+.opt { text-align: left; border: 2px solid var(--line); background: #fff; color: var(--ink); border-radius: 14px; padding: 10px 14px; cursor: pointer;
+  font-size: 15px; font-weight: 500; line-height: 1.35; transition: border-color .15s, background .15s, transform .1s; }
+.opt:hover:not(:disabled) { border-color: var(--leaf); }
+.opt:active:not(:disabled) { transform: scale(.98); }
+.opt:disabled { cursor: default; }
+.opt.picked { border-color: var(--leaf); background: #eef7e6; font-weight: 700; }
+.other { display: flex; gap: 8px; }
+.other input { flex: 1; min-width: 0; }
+.other button { border: 0; border-radius: 12px; padding: 0 16px; background: var(--leaf); color: #fff; font-weight: 700; cursor: pointer; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; cursor: pointer; width: 100%;
+  font-family: var(--display); font-weight: 800; font-size: 20px; padding: 12px 24px; border-radius: 999px;
+  background: var(--btn); color: #fff; box-shadow: 0 5px 0 var(--btn-shadow); transition: transform .1s, box-shadow .1s; }
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--btn-shadow); }
+.btn.ghost { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--line); }
+.lead-text { font-size: 15px; color: var(--ink-soft); }
+.lead-text b { color: var(--ink); }
+.step-dots { display: flex; justify-content: center; gap: 6px; }
+.step-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.step-dots i.on { background: var(--leaf); }
+
+form { display: grid; gap: 10px; }
+label { display: grid; gap: 3px; font-size: 14px; font-weight: 700; }
+input[type=text], input[type=tel], input[type=email], input[type=number] { font: inherit; font-size: 16px; padding: 10px 12px; border-radius: 12px;
+  border: 2px solid var(--line); background: #fffdf7; color: var(--ink); width: 100%; }
+input:focus { outline: none; border-color: var(--leaf); }
+.two { display: grid; grid-template-columns: 1.6fr 1fr; gap: 10px; }
+.opt-note { font-weight: 400; color: var(--ink-soft); }
+.consent { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: 13px; color: var(--ink-soft); line-height: 1.45; }
+.consent input { width: 18px; height: 18px; margin-top: 2px; flex: 0 0 auto; accent-color: var(--leaf); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.err { color: var(--bad); font-size: 14px; min-height: 0; }
+.err:empty { display: none; }
+
+.result { text-align: center; align-items: center; }
+.result h2 { font-size: 26px; color: var(--leaf-dark); }
+.gift { font-family: var(--display); font-weight: 800; font-size: 24px; color: var(--btn); line-height: 1.2; }
+.code { font-family: ui-monospace, Menlo, monospace; font-size: 21px; letter-spacing: .14em; padding: 8px 16px; border: 2.5px dashed var(--sun); border-radius: 14px; }
+.muted { color: var(--ink-soft); font-size: 13px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.row .btn { font-size: 17px; padding: 10px 12px; }
+
+.toast { position: absolute; left: 50%; z-index: 6; top: 46%; transform: translate(-50%, -50%) scale(.6); opacity: 0; pointer-events: none;
+  background: #fff; color: var(--ink); border: 3px solid #3b2a1e; border-radius: 18px; padding: 8px 16px; display: flex; gap: 10px; align-items: center;
+  font-family: var(--display); font-weight: 800; font-size: 17px; white-space: nowrap; transition: transform .35s cubic-bezier(.2,1.5,.4,1), opacity .25s; }
+.toast.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+.toast svg { width: 30px; height: 30px; }
+
+/* Hoạt ảnh SVG */
+.fb { transform-box: fill-box; }
+.bob { animation: bob 2.6s ease-in-out infinite; transform-origin: 50% 100%; transform-box: fill-box; }
+@keyframes bob { 50% { transform: scale(1.025, .975); } }
+.sway { animation: sway 3.4s ease-in-out infinite; transform-origin: 50% 100%; transform-box: fill-box; }
+@keyframes sway { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
+.hop { animation: hop .7s ease; transform-origin: 50% 100%; transform-box: fill-box; }
+@keyframes hop { 0% { transform: none; } 25% { transform: translateY(-26px) scale(.95, 1.06); } 50% { transform: translateY(0) scale(1.07, .93); } 70% { transform: translateY(-8px); } 100% { transform: none; } }
+.grow { animation: grow .9s cubic-bezier(.3,1.5,.5,1); transform-origin: 50% 100%; transform-box: fill-box; }
+@keyframes grow { 0% { transform: scale(.82); } 100% { transform: none; } }
+.cloud { animation: drift 40s linear infinite; }
+.cloud.slow { animation-duration: 60s; }
+@keyframes drift { from { transform: translateX(-60px); } to { transform: translateX(460px); } }
+.drop { animation: dropin .55s cubic-bezier(.3,1.5,.5,1) both; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes dropin { from { transform: translateY(-120px); opacity: 0; } 60% { opacity: 1; } to { transform: none; opacity: 1; } }
+.pour { animation: pour 1.5s ease both; transform-box: fill-box; transform-origin: 80% 70%; }
+@keyframes pour { 0% { transform: translate(-40px, -30px) rotate(0); opacity: 0; } 20% { opacity: 1; transform: rotate(0); } 40%, 80% { transform: rotate(-32deg); opacity: 1; } 100% { transform: rotate(0); opacity: 0; } }
+.rain { animation: rain .5s linear infinite; }
+@keyframes rain { from { transform: translateY(-14px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(30px); opacity: 0; } }
+.sprinkle { animation: sprinkle 1.2s ease-in both; }
+@keyframes sprinkle { from { transform: translateY(-80px); opacity: 0; } 20% { opacity: 1; } to { transform: translateY(0); opacity: 0; } }
+.shine { animation: shine 1.6s ease both; transform-box: fill-box; transform-origin: 50% 50%; }
+@keyframes shine { 0% { transform: scale(.4); opacity: 0; } 40% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+.spin { animation: spin 18s linear infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.flyaway { animation: flyaway 1.1s ease-in both; transform-box: fill-box; }
+@keyframes flyaway { 0% { transform: none; opacity: 1; } 100% { transform: translate(var(--dx), -90px) rotate(200deg); opacity: 0; } }
+.flutter { animation: flutter .3s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 50%; }
+@keyframes flutter { to { transform: scaleX(.35); } }
+.float { animation: float 4s ease-in-out infinite; }
+@keyframes float { 50% { transform: translate(10px, -10px); } }
+.spark { animation: spark .9s ease-out both; transform-box: fill-box; transform-origin: 50% 50%; }
+@keyframes spark { 0% { transform: scale(0) rotate(0); opacity: 1; } 60% { transform: scale(1.2) rotate(45deg); opacity: 1; } 100% { transform: scale(.6) rotate(90deg); opacity: 0; } }
+.zzz { animation: zzz 2.4s ease-in-out infinite; transform-box: fill-box; }
+@keyframes zzz { 0% { transform: translate(0, 6px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(14px, -18px); opacity: 0; } }
+.confetti { position: absolute; top: -12px; width: 9px; height: 13px; z-index: 7; pointer-events: none; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(110dvh) rotate(720deg); } }
+
+/* Truyện tranh mở đầu */
+.comic { position: absolute; inset: 0; z-index: 10; display: none; flex-direction: column; gap: 10px;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 12px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: #fff6df radial-gradient(#f1e2bb 1.2px, transparent 1.4px) 0 0 / 14px 14px; }
+.comic.active { display: flex; }
+.comic-head { display: flex; justify-content: space-between; align-items: baseline; }
+.comic-head h2 { font-size: 22px; color: #5a3714; }
+.comic-head span { font-size: 13px; font-weight: 700; color: #8a6a3a; }
+.page { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1.15fr; gap: 8px; }
+.cell { position: relative; border: 3px solid #3b2a1e; border-radius: 14px; overflow: hidden; background: #fff; opacity: 0; transform: scale(.92); transition: opacity .4s, transform .4s cubic-bezier(.3,1.5,.5,1); }
+.cell.wide { grid-column: 1 / -1; }
+.cell.on { opacity: 1; transform: none; }
+.cell svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cap { position: absolute; left: 6px; top: 6px; right: 6px; background: #ffe9a8; color: #1a1a1a; border: 2px solid #3b2a1e; border-radius: 6px;
+  padding: 3px 8px; font-size: 12.5px; font-weight: 600; line-height: 1.35; }
+.cap.bottom { top: auto; bottom: 6px; }
+.say { position: absolute; background: #fff; color: #1a1a1a; border: 2px solid #3b2a1e; border-radius: 14px; padding: 4px 9px;
+  font-family: var(--display); font-weight: 700; font-size: 13.5px; line-height: 1.25; }
+.comic .btn { flex: 0 0 auto; }
+
+@media (max-height: 760px) {
+  .opts { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .opt { font-size: 13.5px; padding: 8px 10px; }
+  .qtext { font-size: 17px; }
+}
+@media (max-height: 640px) {
+  .qtext { font-size: 17px; }
+  .opt { padding: 8px 12px; font-size: 14px; }
+  .bubble { font-size: 15px; padding: 7px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="scene" id="scene">
+    <svg id="garden" viewBox="0 0 400 520" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Khu vườn quê của Bé Đậu"></svg>
+    <div class="hud" id="hud" hidden>
+      <div class="stage-pill" id="stage-pill"></div>
+      <div class="tools" id="tools" aria-hidden="true"></div>
+    </div>
+    <div class="sign" id="sign"><h1>Vườn của Bé Đậu</h1><p>Cùng ươm mầm một ước mơ</p></div>
+    <div class="bubble hide" id="bubble" aria-live="polite"></div>
+    <div class="toast" id="toast" aria-live="polite"></div>
+  </div>
+
+  <!-- Truyện tranh: chuyện của Bé Đậu -->
+  <div class="comic" id="comic" role="dialog" aria-label="Chuyện của Bé Đậu">
+    <div class="comic-head"><h2>Chuyện của Bé Đậu</h2><span id="comic-page"></span></div>
+    <div class="page" id="comic-cells"></div>
+    <button class="btn" id="btn-comic">Lật trang</button>
+  </div>
+
+  <div class="panel" id="panel">
+    <!-- Màn mở đầu -->
+    <div class="view active" id="v-home">
+      <p class="lead-text">Ở một làng quê đang mùa hạn hán, có hạt đậu nhỏ tên <b>Bé Đậu</b> mơ được nảy mầm. Bạn sẽ là người nông dân tốt bụng giúp Bé Đậu lớn lên, ra hoa, ra quả.</p>
+      <button class="btn" id="btn-play">Bắt đầu trồng</button>
+      <p class="muted" style="text-align:center">Dành cho bạn đang muốn bắt đầu kinh doanh · khoảng 2 phút</p>
+    </div>
+
+    <!-- Truyện ngắn -->
+    <div class="view" id="v-story">
+      <div class="step-dots" id="story-dots"></div>
+      <button class="btn" id="btn-story">Tiếp</button>
+    </div>
+
+    <!-- Thông tin người chơi -->
+    <div class="view" id="v-form">
+      <form id="lead-form" novalidate>
+        <div class="two">
+          <label for="f-name">Tên<input id="f-name" name="name" type="text" autocomplete="given-name" placeholder="VD: Huệ" required></label>
+          <label for="f-age">Tuổi<input id="f-age" name="age" type="number" inputmode="numeric" min="10" max="99" required></label>
+        </div>
+        <label for="f-job">Nghề nghiệp<input id="f-job" name="job" type="text" list="jobs" placeholder="VD: nhân viên văn phòng" required></label>
+        <datalist id="jobs"><option value="Nhân viên văn phòng"><option value="Sinh viên"><option value="Nội trợ"><option value="Freelancer"><option value="Chủ shop online"><option value="Kinh doanh tự do"></datalist>
+        <label for="f-email">Email<input id="f-email" name="email" type="email" autocomplete="email" required></label>
+        <div class="hp" aria-hidden="true"><label for="f-website">Website<input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+        <label class="consent" for="f-consent"><input id="f-consent" type="checkbox" name="consent">
+          <span>Đồng ý cho lưu thông tin để liên hệ khi tôi cần (<a href="#" data-policy>chính sách</a>)</span></label>
+        <div class="err" id="form-err" role="alert"></div>
+        <button class="btn" type="submit">Gieo hạt thôi!</button>
+      </form>
+    </div>
+
+    <!-- Câu hỏi -->
+    <div class="view" id="v-quiz">
+      <span class="qnum" id="qnum"></span>
+      <div class="qtext" id="qtext"></div>
+      <div class="opts" id="opts"></div>
+    </div>
+
+    <!-- Đang gửi -->
+    <div class="view" id="v-send">
+      <p class="lead-text" style="text-align:center">Đang lưu câu trả lời của bạn...</p>
+    </div>
+
+    <!-- Kết quả -->
+    <div class="view result" id="v-done">
+      <h2>Bé Đậu ra quả rồi!</h2>
+      <p>Cảm ơn <b id="done-name"></b> đã chăm Bé Đậu lớn lên!</p>
+      <p class="muted">Câu trả lời của bạn giúp chúng tôi hiểu hơn về người bắt đầu kinh doanh. Nếu bạn cần được tư vấn, chúng tôi sẽ nhắn qua email nhé.</p>
+      <div class="row"><button class="btn" id="btn-replay">↻ Trồng lại</button><a class="btn ghost" id="btn-site" href="https://bloom-lab-marketing.vercel.app" target="_blank" rel="noopener" style="text-decoration:none">Ghé thăm website</a></div>
+      <p class="muted" id="share-note"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =================================================================
+   CẤU HÌNH: chị chỉ cần sửa trong khối này
+   ================================================================= */
+const CONFIG = {
+  brandName: "Thương hiệu của chị",
+  contact: "huengoc161@gmail.com",
+  policyUrl: "#",
+  // Dán URL Web App Google Apps Script vào đây (cùng link với game chính). Để trống = chế độ demo.
+  scriptUrl: "https://script.google.com/macros/s/AKfycbyDTd5MOax8zDxxxki6C7tEBx6sq8mQmqdGhHdjgwcSQDO-aKLxyWPBdis3lGKXRUpvMw/exec",
+  setTitle: "Dành cho người muốn bắt đầu kinh doanh",
+  // Mỗi câu = một lần chăm sóc. key: tên cột trong Google Sheet (giữ giống game chính).
+  // say: Bé Đậu hỏi. care: việc chăm sóc. done: Bé Đậu nói sau khi được chăm. other: true = lựa chọn cuối cho khách tự ghi.
+  questions: [
+    { key: "Giai đoạn khởi nghiệp", care: "water",
+      say: "Ước mơ kinh doanh cũng giống hạt đậu vậy đó, cần được ươm từ từ. Của bạn đang ở đâu rồi?",
+      q: "Bạn đang ở giai đoạn nào?",
+      a: ["Mới có ý tưởng", "Sẽ mở trong 3 tháng tới", "Đã bán thử vài đơn", "Đang đi làm, muốn bán thêm online"],
+      done: "Nước mát quá! Bé Đậu thức dậy rồi nè!" },
+    { key: "Sản phẩm dự định", care: "fert",
+      say: "Kể Bé Đậu nghe đi, bạn định bán gì nè?",
+      q: "Bạn định kinh doanh sản phẩm hay dịch vụ gì?",
+      a: ["Thời trang, mỹ phẩm", "Đồ ăn, thức uống", "Khoá học, dịch vụ", "Đồ handmade, quà tặng", "Khác"], other: true,
+      done: "Phân bón thơm ghê! Mầm của mình nhú ra rồi!" },
+    { key: "Nền tảng muốn bán", care: "sun",
+      say: "Cây cần chỗ có nắng, shop cần chỗ để bán. Bạn muốn bán ở đâu?",
+      q: "Bạn muốn bán hàng chủ yếu trên nền tảng nào?",
+      a: ["TikTok Shop", "Shopee / Lazada", "Facebook / Zalo", "Website riêng", "Cửa hàng truyền thống"],
+      done: "Nắng ấm quá, mình có hai lá mầm rồi!" },
+    { key: "Làm video TikTok/Reels", care: "weed",
+      say: "Lá mình xanh lại rồi nè! Mà nghe nói video ngắn giúp nhiều người biết đến shop lắm đó.",
+      q: "Bạn có muốn đăng video ngắn (TikTok, Reels) để bán hàng không?",
+      a: ["Có, tôi tự quay được", "Muốn làm nhưng ngại lên hình", "Muốn thuê người làm giúp", "Không muốn làm video"],
+      done: "Hết cỏ dại rồi, Bé Đậu cao vèo vèo!" },
+    { key: "Cần website", care: "stake",
+      say: "Cây đậu cần giàn tre để leo, shop cần website để đứng vững. Còn bạn thì sao?",
+      q: "Bạn có cần website riêng cho doanh nghiệp không?",
+      a: ["Cần ngay khi bắt đầu", "Cần, nhưng để sau", "Chưa biết website giúp được gì", "Không cần"],
+      done: "Có giàn tre để bám, mình ra hoa rồi nè!" },
+    { key: "Nỗi lo khi bắt đầu", care: "harvest",
+      say: "Bé Đậu sắp ra quả rồi! Bắt đầu một việc mới ai cũng có nỗi lo. Bạn lo nhất điều gì?",
+      q: "Điều bạn lo nhất khi bắt đầu kinh doanh là gì?",
+      a: ["Không biết tìm khách ở đâu", "Sợ tốn tiền quảng cáo mà không ra đơn", "Không biết xây thương hiệu từ đâu", "Làm một mình, thiếu thời gian", "Thiếu vốn"],
+      done: "Đừng lo, có Bé Đậu đồng hành! Mình ra quả rồi nè!" },
+  ],
+  story: [
+    { mood: "ngu",    text: "Khò... khò... Ơ? Có ai ghé vườn nhà mình hả?" },
+    { mood: "thuong", text: "Chào bạn! Mình là <b>Bé Đậu</b>, hạt đậu nhỏ ở mảnh vườn quê này. Mình mơ được lớn lên, ra hoa, ra thật nhiều quả." },
+    { mood: "vui",    text: "Mỗi câu bạn trả lời là một lần chăm mình: tưới nước, bón phân, sưởi nắng... Đủ 6 lần là mình ra quả nha!" },
+  ],
+};
+/* ================================================================= */
+
+const $ = (s) => document.querySelector(s);
+const OUT = "#3b2a1e";
+const STAGES = ["Hạt đậu ngủ say", "Hạt đậu thức giấc", "Nảy mầm", "Ra lá mầm", "Cây con", "Ra hoa", "Ra quả"];
+
+/* ======================= NỀN VƯỜN QUÊ ======================= */
+function bambooClump(x, y, h) {
+  // lũy tre: thân cong + tán lá lông chim
+  let s = "";
+  const stalks = [[-30, -8], [-14, -2], [0, 4], [14, 9], [28, 14], [40, 6]];
+  stalks.forEach(([dx, lean], i) => {
+    const hh = h - (i % 2) * 18;
+    s += `<path d="M${x + dx} ${y} C${x + dx + lean * .3} ${y - hh * .5} ${x + dx + lean} ${y - hh * .8} ${x + dx + lean * 2} ${y - hh}" stroke="${i % 2 ? "#86b54d" : "#6f9e3e"}" stroke-width="4" fill="none"/>`;
+    for (let k = 1; k < 5; k++) s += `<circle cx="${x + dx + lean * (k / 5) * 1.4}" cy="${y - hh * k / 5}" r="1.6" fill="#557f2c"/>`;
+  });
+  const blobs = [[-40, -h + 10, 30], [-14, -h - 4, 34], [16, -h + 2, 32], [44, -h + 14, 28], [-30, -h + 40, 26], [30, -h + 42, 26], [0, -h + 28, 30]];
+  blobs.forEach(([bx, by, r], i) => {
+    s += `<ellipse cx="${x + bx}" cy="${y + by}" rx="${r}" ry="${r * .62}" fill="${["#5e9a3a", "#6fac44", "#4f8a31"][i % 3]}"/>`;
+    for (let k = 0; k < 7; k++) {
+      const a = (k / 7) * Math.PI * 2, lx = x + bx + Math.cos(a) * r * .95, ly = y + by + Math.sin(a) * r * .55;
+      s += `<path d="M${lx} ${ly} q${Math.cos(a) * 9} ${Math.sin(a) * 5 + 4} ${Math.cos(a) * 15} ${Math.sin(a) * 4 + 9}" stroke="#4f8a31" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    }
+  });
+  return `<g>${s}</g>`;
+}
+function palm(x, y) {
+  return `<g>
+    <path d="M${x} ${y} C${x - 4} ${y - 40} ${x + 6} ${y - 80} ${x + 2} ${y - 110}" stroke="#9b7650" stroke-width="7" fill="none" stroke-linecap="round"/>
+    ${[0, 1, 2, 3, 4, 5, 6, 7].map(i => `<path d="M${x + 2} ${y - 108 + i * 10}" />`).join("")}
+    ${[[-58, 10], [-40, -18], [-6, -30], [30, -20], [52, 8], [-30, 22], [28, 24]].map(([dx, dy]) =>
+      `<path d="M${x + 2} ${y - 110} Q${x + dx * .5} ${y - 128 + dy * .3} ${x + dx} ${y - 110 + dy}" stroke="#4f8a31" stroke-width="7" fill="none" stroke-linecap="round"/>
+       <path d="M${x + 2} ${y - 110} Q${x + dx * .5} ${y - 128 + dy * .3} ${x + dx} ${y - 110 + dy}" stroke="#7bbf4f" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="3 4"/>`).join("")}
+    <circle cx="${x - 3}" cy="${y - 104}" r="5" fill="#8a6a2a"/><circle cx="${x + 6}" cy="${y - 102}" r="5" fill="#7a5a22"/></g>`;
+}
+function banana(x, y) {
+  return `<g class="sway" style="animation-duration:5s">
+    <path d="M${x} ${y} L${x + 2} ${y - 46}" stroke="#8fb35a" stroke-width="9" stroke-linecap="round"/>
+    ${[[-44, -70, -20], [40, -76, 20], [-30, -92, -50], [26, -96, 50], [4, -100, 0]].map(([dx, dy, r]) =>
+      `<path d="M${x + 2} ${y - 46} Q${x + dx * .4} ${y + dy - 4} ${x + dx} ${y + dy + 12} Q${x + dx * .6} ${y + dy + 28} ${x + 2} ${y - 44} Z" fill="#79b84a" stroke="#4f8a31" stroke-width="1.5"/>
+       <path d="M${x + 2} ${y - 46} Q${x + dx * .45} ${y + dy + 6} ${x + dx * .95} ${y + dy + 14}" stroke="#a6d46a" stroke-width="1.5" fill="none"/>`).join("")}
+  </g>`;
+}
+function house(x, y) {
+  // nhà ngói ba gian kiểu quê Việt: mái ngói đỏ cong nhẹ, tường vàng, cửa gỗ
+  const tiles = Array.from({ length: 14 }, (_, i) => `<path d="M${x + 4 + i * 12.5} ${y - 38} L${x - 6 + i * 13.6} ${y}" stroke="#a5402a" stroke-width="1.6"/>`).join("");
+  return `<g>
+    <rect x="${x + 4}" y="${y}" width="172" height="62" fill="#f3d9a0"/>
+    <rect x="${x + 4}" y="${y}" width="172" height="10" fill="#e3bf7c"/>
+    <rect x="${x + 4}" y="${y + 56}" width="172" height="8" fill="#b9a38a"/>
+    <path d="M${x - 14} ${y + 4} Q${x - 4} ${y - 2} ${x + 6} ${y - 40} L${x + 174} ${y - 40} Q${x + 184} ${y - 2} ${x + 194} ${y + 4} Z" fill="#c9573a"/>
+    ${tiles}
+    <path d="M${x - 14} ${y + 4} Q${x - 4} ${y - 2} ${x + 6} ${y - 40} L${x + 174} ${y - 40} Q${x + 184} ${y - 2} ${x + 194} ${y + 4}" stroke="#8c3220" stroke-width="2.5" fill="none"/>
+    <path d="M${x + 2} ${y - 42} H${x + 178}" stroke="#8c3220" stroke-width="5" stroke-linecap="round"/>
+    <path d="M${x + 2} ${y - 42} q-8 -2 -10 -10 M${x + 178} ${y - 42} q8 -2 10 -10" stroke="#8c3220" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="${x - 10}" y="${y + 2}" width="200" height="5" fill="#9b3a26" opacity=".5"/>
+    ${[18, 62, 118, 162].map(px => `<rect x="${x + px - 3}" y="${y + 6}" width="6" height="52" fill="#8a5a33"/>`).join("")}
+    <rect x="${x + 72}" y="${y + 14}" width="36" height="44" rx="2" fill="#8a5a33"/>
+    <rect x="${x + 75}" y="${y + 17}" width="14" height="38" fill="#a8703f"/><rect x="${x + 91}" y="${y + 17}" width="14" height="38" fill="#a8703f"/>
+    ${[[30, 20], [128, 20]].map(([wx, wy]) => `<rect x="${x + wx}" y="${y + wy}" width="24" height="20" fill="#5a3a22"/>
+      ${[0, 1, 2, 3].map(k => `<rect x="${x + wx + 3 + k * 5.5}" y="${y + wy}" width="2.4" height="20" fill="#d9a865"/>`).join("")}`).join("")}
+    <path d="M${x + 4} ${y + 62} H${x + 176}" stroke="#8a7a66" stroke-width="2"/>
+  </g>`;
+}
+function jar(x, y) {
+  return `<g><ellipse cx="${x}" cy="${y + 2}" rx="16" ry="4" fill="#000" opacity=".12"/>
+    <path d="M${x - 9} ${y - 30} Q${x - 18} ${y - 22} ${x - 16} ${y - 12} Q${x - 14} ${y} ${x} ${y} Q${x + 14} ${y} ${x + 16} ${y - 12} Q${x + 18} ${y - 22} ${x + 9} ${y - 30} Z" fill="#8a4f2a"/>
+    <path d="M${x - 10} ${y - 31} H${x + 10}" stroke="#6b3a1d" stroke-width="5" stroke-linecap="round"/>
+    <path d="M${x - 10} ${y - 22} Q${x - 13} ${y - 12} ${x - 9} ${y - 5}" stroke="#c58a55" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`;
+}
+function chick(x, y) {
+  return `<g class="bob" style="animation-duration:1.4s">
+    <ellipse cx="${x}" cy="${y + 1}" rx="10" ry="2.5" fill="#000" opacity=".12"/>
+    <ellipse cx="${x}" cy="${y - 8}" rx="10" ry="9" fill="#ffd84d"/>
+    <circle cx="${x + 6}" cy="${y - 17}" r="6.5" fill="#ffd84d"/>
+    <path d="M${x + 12} ${y - 18} l5 1.5 l-5 1.5 z" fill="#f08a24"/>
+    <circle cx="${x + 8}" cy="${y - 19}" r="1.3" fill="${OUT}"/>
+    <path d="M${x - 6} ${y - 9} q4 4 8 0" stroke="#e8b830" stroke-width="2" fill="none"/>
+    <path d="M${x - 2} ${y} v3 M${x + 3} ${y} v3" stroke="#f08a24" stroke-width="1.6"/></g>`;
+}
+function flowersDots(list) {
+  return list.map(([x, y, c]) => `<g transform="translate(${x} ${y})">${[0, 72, 144, 216, 288].map(a =>
+    `<circle cx="${Math.cos(a * Math.PI / 180) * 3}" cy="${Math.sin(a * Math.PI / 180) * 3}" r="2.6" fill="${c}"/>`).join("")}<circle r="1.8" fill="#ffcf3a"/></g>`).join("");
+}
+function tuft(x, y, s = 1, c = "#5aa443") {
+  return `<path d="M${x - 6 * s} ${y} q${2 * s} ${-10 * s} ${-2 * s} ${-16 * s} M${x} ${y} q0 ${-12 * s} ${3 * s} ${-19 * s} M${x + 6 * s} ${y} q${-1 * s} ${-9 * s} ${5 * s} ${-14 * s}" stroke="${c}" stroke-width="${2.6 * s}" fill="none" stroke-linecap="round"/>`;
+}
+function seedling(x, y, s = 1) {
+  return `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 0 V-10" stroke="#4f8a31" stroke-width="2.5"/>
+    <path d="M0 -9 C-4 -18 -14 -18 -16 -12 C-12 -8 -4 -7 0 -9 Z M0 -9 C4 -18 14 -18 16 -12 C12 -8 4 -7 0 -9 Z" fill="#6cbf4a"/></g>`;
+}
+
+function gardenBG() {
+  return `
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fd0f5"/><stop offset=".42" stop-color="#cdeefc"/><stop offset=".52" stop-color="#fff2cf"/>
+    </linearGradient>
+    <radialGradient id="sunglow"><stop offset="0" stop-color="#fff6c2" stop-opacity=".95"/><stop offset="1" stop-color="#fff6c2" stop-opacity="0"/></radialGradient>
+    <linearGradient id="soilTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b57d4e"/><stop offset="1" stop-color="#94603a"/></linearGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86cc63"/><stop offset="1" stop-color="#5fae48"/></linearGradient>
+    <radialGradient id="beanFill" cx=".38" cy=".3" r=".75"><stop offset="0" stop-color="#fdeab4"/><stop offset=".65" stop-color="#f5d07e"/><stop offset="1" stop-color="#e8b85e"/></radialGradient>
+    <linearGradient id="podFill" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9ad15e"/><stop offset="1" stop-color="#6aa83c"/></linearGradient>
+  </defs>
+  <rect width="400" height="520" fill="url(#sky)"/>
+  <g id="sun" transform="translate(330 78)"><circle r="62" fill="url(#sunglow)"/><circle r="26" fill="#ffe27a"/><circle r="20" fill="#ffd84d"/></g>
+  <g class="cloud slow" opacity=".95"><g transform="translate(40 52)"><ellipse rx="34" ry="11" fill="#fff"/><ellipse cx="-10" cy="-8" rx="16" ry="12" fill="#fff"/><ellipse cx="12" cy="-10" rx="18" ry="14" fill="#fff"/></g></g>
+  <g class="cloud" style="animation-delay:-22s" opacity=".9"><g transform="translate(60 112)"><ellipse rx="26" ry="8" fill="#fff"/><ellipse cx="-6" cy="-6" rx="12" ry="9" fill="#fff"/><ellipse cx="9" cy="-8" rx="13" ry="10" fill="#fff"/></g></g>
+  <g class="cloud slow" style="animation-delay:-38s" opacity=".85"><g transform="translate(20 168)"><ellipse rx="22" ry="7" fill="#fff"/><ellipse cx="6" cy="-6" rx="11" ry="8" fill="#fff"/></g></g>
+  <path d="M0 236 Q40 196 90 222 Q140 180 200 216 Q262 184 312 212 Q360 190 400 206 V280 H0 Z" fill="#a9d6c4"/>
+  <path d="M0 248 Q70 226 140 244 Q220 228 290 246 Q350 234 400 242 V290 H0 Z" fill="#94cf8a"/>
+  <!-- cánh đồng lúa -->
+  <path d="M0 262 Q200 250 400 260 V318 H0 Z" fill="#b9e07c"/>
+  ${[268, 276, 285, 295, 306].map((yy, i) => `<path d="M0 ${yy} Q200 ${yy - 9 + i} 400 ${yy}" stroke="#93c35a" stroke-width="${1.2 + i * .4}" fill="none"/>`).join("")}
+  <path d="M150 272 Q250 266 330 272 L336 282 Q250 276 146 282 Z" fill="#cdeefc" opacity=".8"/>
+  ${palm(28, 270)}
+  ${bambooClump(352, 300, 118)}
+  ${house(40, 248)}
+  ${jar(232, 312)}
+  ${banana(266, 318)}
+  <!-- hàng rào tre -->
+  <path d="M0 304 H400" stroke="#c99a5a" stroke-width="4"/>
+  <path d="M0 318 H400" stroke="#c99a5a" stroke-width="4"/>
+  ${Array.from({ length: 16 }, (_, i) => { const px = 6 + i * 26; return `<path d="M${px} 296 V330" stroke="#d9b06c" stroke-width="6" stroke-linecap="round"/><path d="M${px - 1.5} 298 V328" stroke="#ecca8c" stroke-width="1.6"/><path d="M${px - 3} 312 H${px + 3}" stroke="#a87a42" stroke-width="1.6"/>`; }).join("")}
+  <!-- cỏ và đường đất -->
+  <path d="M0 326 Q200 318 400 326 V520 H0 Z" fill="url(#grass)"/>
+  <path d="M-10 520 Q40 440 120 420 Q170 408 200 404 L230 404 Q190 420 150 440 Q90 470 70 520 Z" fill="#d8b47c" opacity=".55"/>
+  ${[[30, 350, 1], [90, 340, .8], [150, 352, .9], [250, 346, .8], [300, 356, 1], [380, 344, .9], [16, 420, 1.1], [384, 420, 1.1], [44, 490, 1.2], [356, 496, 1.2]].map(([x, y, s]) => tuft(x, y, s)).join("")}
+  ${flowersDots([[22, 360, "#fff"], [60, 372, "#ffb3c7"], [120, 362, "#fff"], [286, 370, "#ffd1e0"], [340, 364, "#fff"], [372, 380, "#ffb3c7"], [24, 452, "#fff"], [372, 458, "#ffd1e0"], [378, 500, "#fff"], [18, 506, "#ffb3c7"]])}
+  ${chick(330, 392)}
+  <g><ellipse cx="350" cy="414" rx="9" ry="2" fill="#000" opacity=".1"/><ellipse cx="350" cy="404" rx="7" ry="6" fill="#ffd84d"/><circle cx="354" cy="398" r="4.5" fill="#ffd84d"/><path d="M358 397 l3.5 1 l-3.5 1 z" fill="#f08a24"/><circle cx="355.5" cy="396.5" r="1" fill="${OUT}"/></g>
+  <!-- đá -->
+  <ellipse cx="60" cy="400" rx="12" ry="7" fill="#b9b3a6"/><ellipse cx="57" cy="397" rx="6" ry="3" fill="#d6d1c6"/>
+  <ellipse cx="368" cy="470" rx="14" ry="8" fill="#b9b3a6"/><ellipse cx="364" cy="466" rx="7" ry="3" fill="#d6d1c6"/>
+  <!-- luống đất -->
+  <ellipse cx="200" cy="488" rx="150" ry="34" fill="#7a4e2e"/>
+  <ellipse cx="200" cy="482" rx="146" ry="30" fill="url(#soilTop)"/>
+  ${[-1, 0, 1].map(k => `<path d="M${80} ${482 + k * 12} Q200 ${474 + k * 12} ${320} ${482 + k * 12}" stroke="#8a5a35" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".7"/>`).join("")}
+  ${[[96, 470], [118, 494], [282, 470], [300, 494], [160, 500], [244, 502]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2" fill="#6b4226"/>`).join("")}
+  ${seedling(84, 482, .9)}${seedling(118, 472, .75)}${seedling(316, 482, .9)}${seedling(284, 472, .75)}
+  <g id="dry" style="transition: opacity 1.2s">
+    <rect width="400" height="250" fill="#ffb347" opacity=".22"/>
+    <rect y="250" width="400" height="270" fill="#c99a4e" opacity=".55"/>
+    <g stroke="#6b4226" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8">
+      <path d="M90 478 l14 4 l8 -6 l12 5 M150 492 l10 -6 l6 8 l12 -3 M230 470 l12 6 l10 -4 M270 492 l10 -8 l14 4 l6 -6 M190 506 l6 -8 l10 2"/>
+      <path d="M40 380 l10 4 l6 -6 M300 420 l12 -4 l4 8 M110 430 l8 6 l10 -2 M360 380 l-8 6"/>
+    </g>
+    ${[[30, 350], [90, 340], [150, 352], [250, 346], [300, 356], [380, 344]].map(([x, y]) => tuft(x, y, .9, "#b8954a")).join("")}
+  </g>
+  <g id="props"></g>
+  <g id="weeds"></g>
+  <g id="bean"></g>
+  <g id="fx"></g>`;
+}
+
+/* ======================= BÉ ĐẬU ======================= */
+// Gốc toạ độ (0,0) là chân Bé Đậu trên mặt đất.
+function beanFace(m) {
+  const ex = [-18, 12], ey = -70;
+  let eyes;
+  if (m === "ngu") eyes = ex.map(x => `<path d="M${x - 6} ${ey} Q${x} ${ey + 5} ${x + 6} ${ey}" stroke="${OUT}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`).join("");
+  else if (m === "vui") eyes = ex.map(x => `<path d="M${x - 6} ${ey + 2} Q${x} ${ey - 7} ${x + 6} ${ey + 2}" stroke="${OUT}" stroke-width="2.8" fill="none" stroke-linecap="round"/>`).join("");
+  else eyes = ex.map(x => `<ellipse cx="${x}" cy="${ey}" rx="${m === "ngac" ? 4.6 : 4}" ry="${m === "ngac" ? 5.6 : 5}" fill="${OUT}"/><circle cx="${x + 1.5}" cy="${ey - 2}" r="1.5" fill="#fff"/>`).join("");
+  const mouth = m === "vui" ? `<path d="M-9 -58 Q-3 -48 3 -58 Z" fill="#d9536f" stroke="${OUT}" stroke-width="2.2" stroke-linejoin="round"/>`
+    : m === "ngac" ? `<ellipse cx="-3" cy="-55" rx="3.4" ry="4.2" fill="#d9536f" stroke="${OUT}" stroke-width="2.2"/>`
+    : m === "ngu" ? `<ellipse cx="-3" cy="-56" rx="2.6" ry="2" fill="${OUT}" opacity=".7"/>`
+    : `<path d="M-8 -58 Q-3 -52 2 -58" stroke="${OUT}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+  return `${eyes}<ellipse cx="-29" cy="-60" rx="7" ry="4.2" fill="#f59a8e" opacity=".75"/><ellipse cx="23" cy="-60" rx="7" ry="4.2" fill="#f59a8e" opacity=".75"/>${mouth}`;
+}
+function beanBody(m, stage) {
+  const up = m === "vui";
+  const arms = up
+    ? `<path d="M-48 -62 Q-62 -76 -64 -94" stroke="${OUT}" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="-64" cy="-95" r="3" fill="${OUT}"/>
+       <path d="M47 -60 Q60 -74 62 -92" stroke="${OUT}" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="62" cy="-93" r="3" fill="${OUT}"/>`
+    : m === "ngu" ? ""
+    : `<path d="M-48 -54 Q-62 -46 -64 -30" stroke="${OUT}" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="-64" cy="-29" r="3" fill="${OUT}"/>
+       <path d="M47 -52 Q60 -44 60 -28" stroke="${OUT}" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="60" cy="-27" r="3" fill="${OUT}"/>`;
+  const legs = m === "ngu" ? "" : `<path d="M-14 -8 V-1 M8 -8 V-1" stroke="${OUT}" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="-16" cy="0" rx="7" ry="3.4" fill="#f28c8c"/><ellipse cx="10" cy="0" rx="7" ry="3.4" fill="#f28c8c"/>`;
+  // Thân hạt đậu nành: tròn trịa, có rốn hạt bên phải
+  const body = `<path d="M-6 -128 C30 -130 52 -104 50 -72 C49 -60 44 -56 45 -44 C46 -22 28 -8 0 -8 C-32 -8 -52 -30 -52 -66 C-52 -102 -36 -127 -6 -128 Z" fill="url(#beanFill)"/>
+    <path d="M45 -44 C46 -22 28 -8 0 -8 C-24 -8 -42 -20 -49 -40 C-36 -24 -16 -16 6 -18 C26 -20 40 -30 45 -44 Z" fill="#d9a24e" opacity=".45"/>
+    <ellipse cx="44" cy="-62" rx="4.5" ry="11" fill="#cf9845"/><ellipse cx="44" cy="-62" rx="2" ry="7" fill="#b07a32"/>
+    <ellipse cx="-30" cy="-108" rx="12" ry="6" fill="#fff" opacity=".85" transform="rotate(-38 -30 -108)"/><circle cx="-14" cy="-118" r="3.4" fill="#fff" opacity=".85"/>
+    ${stage >= 1 ? `<path d="M30 -118 l-6 9 l5 4 l-5 8" stroke="#c99248" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` : ""}`;
+  return `${legs}${arms}${body}${beanFace(m)}`;
+}
+const leaf = (x, y, rot, s = 1, c = "#6cbf4a") => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">
+  <path d="M0 0 C8 -14 34 -16 48 0 C34 16 8 14 0 0 Z" fill="${c}"/><path d="M0 0 C8 -14 34 -16 48 0 C34 6 12 6 0 0 Z" fill="#fff" opacity=".14"/>
+  <path d="M3 0 Q24 -1 42 0" stroke="#3f8a2e" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>`;
+// Lá thật của cây đậu: 3 lá chét
+const trifoliate = (x, y, rot, s = 1) => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">
+  <path d="M0 0 L18 0" stroke="#4f9a3a" stroke-width="3" stroke-linecap="round"/>
+  ${leaf(18, 0, -40, .62, "#5fb342")}${leaf(18, 0, 40, .62, "#5fb342")}${leaf(18, 0, 0, .72, "#6cbf4a")}</g>`;
+const flower = (x, y, s = 1, c = "#b98ae6") => `<g transform="translate(${x} ${y}) scale(${s})">
+  <path d="M0 0 C-8 -4 -10 -14 -2 -16 C4 -17 8 -10 6 -4 Z" fill="${c}"/><path d="M0 0 C8 -2 12 -10 6 -14 C2 -16 -2 -10 0 -4 Z" fill="#fff"/>
+  <path d="M-1 -3 C-4 -8 -2 -12 1 -11" fill="#e4d2f7"/><circle cx="1" cy="-6" r="1.6" fill="#ffd84d"/></g>`;
+const pod = (x, y, rot, s = 1) => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">
+  <path d="M0 0 C6 6 8 22 6 38 C5 48 -4 52 -7 44 C-10 30 -8 10 0 0 Z" fill="url(#podFill)"/>
+  <ellipse cx="0" cy="14" rx="4.2" ry="5.4" fill="#b6e27a" opacity=".85"/><ellipse cx="0" cy="26" rx="4.2" ry="5.4" fill="#b6e27a" opacity=".85"/><ellipse cx="-1" cy="38" rx="3.6" ry="4.8" fill="#b6e27a" opacity=".85"/>
+  <path d="M0 0 C-4 -3 -2 -8 2 -8" stroke="#4f9a3a" stroke-width="2" fill="none" stroke-linecap="round"/></g>`;
+
+function sprout(stage) {
+  // Cây mọc từ đỉnh đầu Bé Đậu (0,-126)
+  if (stage < 2) return "";
+  if (stage === 2) return `<g class="sway"><path d="M-2 -124 C-6 -142 4 -156 16 -150" stroke="#9dd36a" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M14 -152 C22 -158 28 -150 22 -144 C18 -140 12 -144 14 -152 Z" fill="#c7e88a"/></g>`;
+  const h = [0, 0, 0, 44, 84, 100, 112][stage];
+  const top = -124 - h;
+  let s = `<path d="M-2 -124 C-8 ${-124 - h * .4} 6 ${-124 - h * .7} 0 ${top}" stroke="#58a83e" stroke-width="${stage >= 4 ? 6 : 5}" fill="none" stroke-linecap="round"/>`;
+  if (stage === 3) {
+    s += `<path d="M0 ${top} C-14 ${top - 18} -40 ${top - 14} -42 ${top + 2} C-30 ${top + 12} -10 ${top + 8} 0 ${top} Z" fill="#8fd05c"/>
+          <path d="M0 ${top} C14 ${top - 18} 40 ${top - 14} 42 ${top + 2} C30 ${top + 12} 10 ${top + 8} 0 ${top} Z" fill="#7cc24e"/>
+          <path d="M-4 ${top - 2} Q-22 ${top - 6} -34 ${top}" stroke="#5aa43a" stroke-width="1.5" fill="none"/><path d="M4 ${top - 2} Q22 ${top - 6} 34 ${top}" stroke="#4f9a3a" stroke-width="1.5" fill="none"/>`;
+    return `<g class="sway">${s}</g>`;
+  }
+  // stage >= 4: lá mầm thấp xuống, lá thật mọc phía trên
+  const mid = -124 - h * .45;
+  s += `<path d="M0 ${mid} C-10 ${mid - 10} -26 ${mid - 8} -28 ${mid + 2} C-20 ${mid + 8} -8 ${mid + 6} 0 ${mid} Z" fill="#9dd36a"/>
+        <path d="M0 ${mid} C10 ${mid - 10} 26 ${mid - 8} 28 ${mid + 2} C20 ${mid + 8} 8 ${mid + 6} 0 ${mid} Z" fill="#8fc85e"/>`;
+  s += trifoliate(0, top + 4, -90, 1.15) + trifoliate(-2, top + 34, -160, .95) + trifoliate(2, top + 30, -20, .95);
+  if (stage >= 5) s += trifoliate(-2, top + 58, -175, .8) + trifoliate(2, top + 60, -5, .8);
+  if (stage === 5) s += flower(-12, top + 30, 1.1) + flower(14, top + 26, 1.1, "#a77bd9") + flower(-8, top + 56, 1) + flower(12, top + 54, 1, "#c9a2ef") + flower(0, top - 2, .9);
+  if (stage >= 6) s += pod(-14, top + 30, 28, 1) + pod(14, top + 26, -26, 1) + pod(-12, top + 56, 34, .9) + pod(14, top + 56, -30, .9) + pod(2, top + 4, 8, .8)
+    + flower(-26, top + 16, .8) + flower(28, top + 40, .8, "#a77bd9");
+  return `<g class="sway" style="animation-duration:4.2s">${s}</g>`;
+}
+const BEAN_SCALE = [0.74, 0.8, 0.86, 0.9, 0.94, 0.98, 1.02];
+function beanSVG(stage, mood) {
+  const sc = BEAN_SCALE[stage];
+  const root = stage >= 1 ? `<path d="M-4 -2 q-6 10 -2 18 q3 6 -2 12 M8 -2 q8 8 4 16" stroke="#e8d0a6" stroke-width="2.6" fill="none" stroke-linecap="round" opacity=".9"/>` : "";
+  const zz = mood === "ngu" ? `<g font-family="Baloo 2, sans-serif" font-weight="800" fill="#fff" stroke="${OUT}" stroke-width="1.2">
+    <text class="zzz" x="34" y="-120" font-size="16">z</text><text class="zzz" x="44" y="-138" font-size="20" style="animation-delay:.8s">Z</text></g>` : "";
+  // Hạt ngủ thì nằm nghiêng, vùi một phần trong đất
+  const pose = stage === 0 ? `rotate(-70) translate(56 -26)` : "";
+  return `<g transform="translate(200 486) scale(${sc})">
+    <ellipse cx="0" cy="0" rx="${stage === 0 ? 62 : 46}" ry="8" fill="#5a3a22" opacity=".35"/>
+    ${root}
+    <g class="bob"><g transform="${pose}">${beanBody(mood, stage)}</g>${sprout(stage)}</g>
+    ${zz}</g>`;
+}
+
+/* ======================= ĐỒ CHĂM SÓC ======================= */
+const TOOLS = {
+  water: { name: "Bình tưới nước", icon: `<path d="M14 18 h22 v20 a4 4 0 0 1 -4 4 h-14 a4 4 0 0 1 -4 -4 z" fill="#4fb3a9"/><path d="M36 22 l10 -8 l3 3 l-11 10" fill="#4fb3a9"/><path d="M18 18 q7 -10 14 0" stroke="#2f8a80" stroke-width="3" fill="none"/><path d="M47 13 l4 -3 l2 6 z" fill="#2f8a80"/><circle cx="52" cy="26" r="2" fill="#7cc6f2"/><circle cx="56" cy="32" r="2" fill="#7cc6f2"/>` },
+  fert:  { name: "Bao phân bón", icon: `<path d="M16 18 q16 -6 32 0 l4 26 q-20 6 -40 0 z" fill="#d8b27a"/><path d="M16 18 q16 4 32 0" stroke="#a7834f" stroke-width="2.5" fill="none"/><path d="M32 26 c-6 4 -6 10 0 12 c6 -2 6 -8 0 -12z" fill="#5fb342"/><path d="M32 30 v10" stroke="#3f8a2e" stroke-width="1.5"/>` },
+  sun:   { name: "Ánh nắng ấm", icon: `<circle cx="32" cy="32" r="12" fill="#ffd84d"/>${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<path d="M${32 + Math.cos(a * Math.PI / 180) * 17} ${32 + Math.sin(a * Math.PI / 180) * 17} L${32 + Math.cos(a * Math.PI / 180) * 24} ${32 + Math.sin(a * Math.PI / 180) * 24}" stroke="#f2a31b" stroke-width="4" stroke-linecap="round"/>`).join("")}` },
+  weed:  { name: "Xẻng nhổ cỏ", icon: `<path d="M22 14 q-8 10 2 18 l6 -6 q4 -12 -8 -12z" fill="#9aa5ad"/><path d="M28 28 l16 16" stroke="#a8703f" stroke-width="6" stroke-linecap="round"/><path d="M42 38 l8 8" stroke="#7a4a22" stroke-width="7" stroke-linecap="round"/>` },
+  stake: { name: "Giàn tre", icon: `<path d="M24 10 v46 M40 10 v46" stroke="#c9a35a" stroke-width="5" stroke-linecap="round"/><path d="M18 22 h28 M18 38 h28" stroke="#a7834f" stroke-width="3" stroke-linecap="round"/><path d="M24 30 h1 M40 18 h1 M24 46 h1" stroke="#8a6a2a" stroke-width="5"/>` },
+  harvest: { name: "Rổ tre", icon: `<path d="M10 30 h44 l-6 18 q-16 6 -32 0 z" fill="#c9a35a"/><path d="M14 36 h36 M16 42 h32" stroke="#a7834f" stroke-width="2"/><path d="M18 30 q14 -22 28 0" stroke="#a7834f" stroke-width="3" fill="none"/><path d="M22 30 c2 -8 8 -10 10 -6 M34 30 c2 -8 8 -10 10 -6" stroke="#6aa83c" stroke-width="5" fill="none" stroke-linecap="round"/>` },
+};
+function toolIcon(id) { return `<svg viewBox="0 0 64 64">${TOOLS[id].icon}</svg>`; }
+
+function wateringCan(x, y) {
+  return `<g transform="translate(${x} ${y})">
+    <ellipse cx="0" cy="2" rx="22" ry="4" fill="#000" opacity=".12"/>
+    <path d="M-16 -30 h28 v26 a4 4 0 0 1 -4 4 h-20 a4 4 0 0 1 -4 -4 z" fill="#4fb3a9"/><path d="M-16 -30 h28 v6 h-28 z" fill="#3c9a90"/>
+    <path d="M12 -24 l16 -12 l3 4 l-16 14" fill="#4fb3a9"/><path d="M27 -38 l7 -3 l2 8 z" fill="#2f8a80"/>
+    <path d="M-12 -30 q10 -14 20 0" stroke="#2f8a80" stroke-width="4" fill="none"/></g>`;
+}
+function sack(x, y) {
+  return `<g transform="translate(${x} ${y})"><ellipse cx="0" cy="2" rx="22" ry="4" fill="#000" opacity=".12"/>
+    <path d="M-18 -34 q18 -6 36 0 l4 32 q-22 6 -44 0 z" fill="#d8b27a"/><path d="M-18 -34 q18 6 36 0" stroke="#a7834f" stroke-width="3" fill="none"/>
+    <path d="M-14 -38 q4 -8 8 0 q4 -8 8 0 q4 -8 8 0" stroke="#a7834f" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M0 -24 c-8 5 -8 13 0 15 c8 -2 8 -10 0 -15z" fill="#5fb342"/><path d="M0 -20 v12" stroke="#3f8a2e" stroke-width="1.6"/>
+    <text x="0" y="-2" text-anchor="middle" font-family="Be Vietnam Pro, sans-serif" font-weight="700" font-size="6.5" fill="#6b4a22">PHÂN HỮU CƠ</text></g>`;
+}
+function bambooStake(x, y, h) {
+  return `<g><path d="M${x} ${y} V${y - h}" stroke="#d6b16a" stroke-width="7" stroke-linecap="round"/>
+    <path d="M${x - 2} ${y} V${y - h}" stroke="#ecd099" stroke-width="2"/>
+    ${[.25, .5, .75].map(k => `<path d="M${x - 4} ${y - h * k} h8" stroke="#a7834f" stroke-width="2.5"/>`).join("")}
+    <path d="M${x} ${y - h * .62} q-14 -4 -22 4" stroke="#e7d7b5" stroke-width="2" fill="none"/></g>`;
+}
+function basket(x, y) {
+  return `<g transform="translate(${x} ${y})"><ellipse cx="0" cy="2" rx="28" ry="5" fill="#000" opacity=".12"/>
+    <path d="M-26 -18 h52 l-7 18 q-19 5 -38 0 z" fill="#c9a35a"/>
+    <path d="M-23 -11 h46 M-21 -5 h42" stroke="#a7834f" stroke-width="2"/>
+    ${[-16, -6, 4, 14].map(px => `<path d="M${px} -18 l2 18" stroke="#a7834f" stroke-width="1.5"/>`).join("")}
+    ${pod(-12, -30, -60, .55)}${pod(0, -32, -80, .55)}${pod(12, -30, -100, .55)}${pod(4, -26, -40, .5)}
+    <path d="M-22 -18 q22 -30 44 0" stroke="#a7834f" stroke-width="3.5" fill="none"/></g>`;
+}
+function butterfly(x, y, c, delay = 0) {
+  return `<g class="float" style="animation-delay:${delay}s"><g transform="translate(${x} ${y})">
+    <g class="flutter"><ellipse cx="-6" cy="-3" rx="7" ry="6" fill="${c}"/><ellipse cx="6" cy="-3" rx="7" ry="6" fill="${c}"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="${c}" opacity=".85"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="${c}" opacity=".85"/></g>
+    <rect x="-1.2" y="-6" width="2.4" height="13" rx="1.2" fill="${OUT}"/></g></g>`;
+}
+function propsSVG(n) {
+  let s = "";
+  if (n >= 1) s += `<g class="${n === 1 ? "drop" : ""}">${wateringCan(70, 446)}</g>`;
+  if (n >= 2) s += `<g class="${n === 2 ? "drop" : ""}">${sack(334, 448)}</g>`;
+  if (n >= 4) s += `<g class="${n === 4 ? "drop" : ""}">${weedPile()}</g>`;
+  if (n >= 5) s += `<g class="${n === 5 ? "drop" : ""}">${bambooStake(248, 492, 210)}${bambooStake(152, 492, 196)}<path d="M152 330 Q200 318 248 316" stroke="#d6b16a" stroke-width="4" fill="none" stroke-linecap="round"/></g>`;
+  if (n >= 6) s += `<g class="${n === 6 ? "drop" : ""}">${basket(300, 508)}</g>`;
+  if (n >= 5) s += butterfly(110, 330, "#ffb3c7") + butterfly(296, 300, "#ffd84d", -1.6);
+  return s;
+}
+function weedPile() {
+  return `<g transform="translate(40 510)"><ellipse cx="0" cy="0" rx="18" ry="4" fill="#000" opacity=".12"/>
+    ${tuft(-6, 0, .9, "#7a9a3a")}${tuft(6, -2, .8, "#8aa84a")}<path d="M-14 -2 q14 -8 28 0" stroke="#8a6a3a" stroke-width="2" fill="none"/></g>`;
+}
+function weedsSVG() {
+  // cỏ dại mọc quanh Bé Đậu, sẽ bị nhổ ở câu 4
+  return [[150, 492], [176, 500], [226, 500], [254, 490], [136, 476], [266, 476]].map(([x, y], i) =>
+    `<g data-weed style="--dx:${i % 2 ? 40 : -40}px">${tuft(x, y, .85, "#7a9a3a")}<circle cx="${x}" cy="${y - 15}" r="2" fill="#ffe27a"/></g>`).join("");
+}
+
+/* ======================= HIỆU ỨNG CHĂM SÓC ======================= */
+function fxWater() {
+  const drops = Array.from({ length: 9 }, (_, i) => `<path class="rain" style="animation-delay:${(i % 3) * .15 + .5}s" d="M${168 + i * 8} ${360 + (i % 3) * 6} q3 6 0 9 q-3 -3 0 -9z" fill="#5fbff0"/>`).join("");
+  return `<g class="pour">${wateringCan(130, 346)}</g><g>${drops}</g>`;
+}
+function fxFert() {
+  return Array.from({ length: 16 }, (_, i) => `<circle class="sprinkle" style="animation-delay:${(i % 6) * .08}s" cx="${150 + (i * 37) % 100}" cy="${470 + (i % 4) * 5}" r="${2 + (i % 3)}" fill="${i % 2 ? "#8a5a2a" : "#ffd84d"}"/>`).join("");
+}
+function fxSun() {
+  return `<g transform="translate(200 380)"><g class="shine">${Array.from({ length: 12 }, (_, i) => { const a = i * 30 * Math.PI / 180;
+    return `<path d="M${Math.cos(a) * 60} ${Math.sin(a) * 60} L${Math.cos(a) * 100} ${Math.sin(a) * 100}" stroke="#ffd84d" stroke-width="7" stroke-linecap="round"/>`; }).join("")}</g></g>`;
+}
+function fxSparkles(cx = 200, cy = 380) {
+  return Array.from({ length: 7 }, (_, i) => { const a = (i / 7) * Math.PI * 2, r = 70 + (i % 2) * 24;
+    return `<path class="spark" style="animation-delay:${i * .06}s" transform="translate(${cx + Math.cos(a) * r} ${cy + Math.sin(a) * r * .8})" d="M0 -9 L2.5 -2.5 L9 0 L2.5 2.5 L0 9 L-2.5 2.5 L-9 0 L-2.5 -2.5 Z" fill="${i % 2 ? "#fff" : "#ffd84d"}"/>`; }).join("");
+}
+
+/* ======================= TRẠNG THÁI ======================= */
+const state = { stage: 0, mood: "ngu", q: 0, answers: [], lead: null, storyIdx: 0, busy: false, startedAt: Date.now(), isReplay: false };
+
+function store(key, val) {
+  try { if (val === undefined) return JSON.parse(localStorage.getItem(key)); localStorage.setItem(key, JSON.stringify(val)); } catch { return null; }
+}
+function drawBean(anim) {
+  const g = $("#bean");
+  g.innerHTML = beanSVG(state.stage, state.mood);
+  if (anim) { const inner = g.firstElementChild; inner.classList.add(anim); }
+}
+function drawProps() { $("#props").innerHTML = propsSVG(state.q); $("#dry").style.opacity = [1, .6, .35, .12, 0, 0, 0][state.q]; }
+function setSun(happy) {
+  $("#sun").innerHTML = `<circle r="62" fill="url(#sunglow)"/>${happy ? `<g class="spin">${Array.from({ length: 10 }, (_, i) => { const a = i * 36 * Math.PI / 180;
+    return `<path d="M${Math.cos(a) * 32} ${Math.sin(a) * 32} L${Math.cos(a) * 44} ${Math.sin(a) * 44}" stroke="#ffd84d" stroke-width="5" stroke-linecap="round"/>`; }).join("")}</g>` : ""}
+    <circle r="26" fill="#ffe27a"/><circle r="20" fill="#ffd84d"/>
+    ${happy ? `<path d="M-8 -3 q3 -4 6 0 M3 -3 q3 -4 6 0" stroke="${OUT}" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M-6 5 q6 6 12 0" stroke="${OUT}" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="-12" cy="4" r="3" fill="#f59a8e" opacity=".7"/><circle cx="13" cy="4" r="3" fill="#f59a8e" opacity=".7"/>` : ""}`;
+}
+function say(html) { const b = $("#bubble"); b.innerHTML = html; b.classList.remove("hide", "talk"); void b.offsetWidth; b.classList.add("talk"); }
+function hush() { $("#bubble").classList.add("hide"); }
+function view(id) { document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === id)); $("#panel").scrollTop = 0; }
+function updateHud() {
+  $("#hud").hidden = false; $("#sign").hidden = true;
+  $("#stage-pill").innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 22 V12" stroke="#4f9a3a" stroke-width="2.5" stroke-linecap="round"/><path d="M12 13 C6 13 3 9 3 5 C8 5 12 8 12 13 Z" fill="#6cbf4a"/><path d="M12 11 C12 6 16 3 21 3 C21 8 17 11 12 11 Z" fill="#8fd05c"/></svg>${STAGES[state.stage]}`;
+  const ids = CONFIG.questions.map(q => q.care);
+  $("#tools").innerHTML = ids.map((id, i) => toolIcon(id).replace("<svg", `<svg class="${i < state.q ? "on" : ""}${i === state.q - 1 ? " new" : ""}"`)).join("");
+}
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+function toast(html, ms = 1400) { const t = $("#toast"); t.innerHTML = html; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), ms); }
+
+/* ---------------- Khởi tạo ---------------- */
+$("#garden").innerHTML = gardenBG();
+$("#weeds").innerHTML = weedsSVG();
+drawBean();
+document.querySelectorAll("[data-brand]").forEach(e => e.textContent = CONFIG.brandName);
+document.querySelectorAll("[data-policy]").forEach(e => { e.href = CONFIG.policyUrl; if (CONFIG.policyUrl !== "#") e.target = "_blank"; });
+
+/* ---------------- Truyện mở đầu ---------------- */
+$("#btn-play").addEventListener("click", () => {
+  state.startedAt = Date.now();
+  const prevLead = store("chibi_lead");
+  if (prevLead && prevLead.email) { state.lead = prevLead; state.isReplay = true; startQuiz(); return; }
+  state.page = 0; renderComic();
+});
+
+/* ---------------- Truyện tranh 2 trang ---------------- */
+function farmer(x, y, s, pose) {
+  // Người nông dân tốt bụng: nón lá che mặt, áo nâu, quần xanh (để ai chơi cũng thấy mình trong đó)
+  const hat = `<path d="M-30 -66 L0 -98 L30 -66 Q0 -58 -30 -66 Z" fill="#f2deae"/><path d="M0 -98 L30 -66 Q16 -62 4 -62 Z" fill="#dcc48e"/>
+    <path d="M-22 -72 Q0 -66 22 -72 M-14 -80 Q0 -76 14 -80" stroke="#c9ad74" stroke-width="1.4" fill="none"/>`;
+  const face = `<path d="M-14 -66 Q-14 -50 0 -48 Q14 -50 14 -66 Z" fill="#f6c99a"/><path d="M-5 -55 Q0 -51 5 -55" stroke="${OUT}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="-9" cy="-57" rx="3" ry="2" fill="#f59a8e" opacity=".7"/><ellipse cx="9" cy="-57" rx="3" ry="2" fill="#f59a8e" opacity=".7"/>`;
+  const shirt = `<path d="M-16 -48 Q-20 -30 -18 -18 H18 Q20 -30 16 -48 Q0 -44 -16 -48 Z" fill="#9a6a43"/><path d="M0 -46 V-20" stroke="#7a4e2e" stroke-width="1.4"/>`;
+  if (pose === "stand") return `<g transform="translate(${x} ${y}) scale(${s})">
+    <path d="M-8 -18 L-10 0 M8 -18 L10 0" stroke="#3d5a8a" stroke-width="7" stroke-linecap="round"/>
+    <path d="M16 -42 Q30 -50 34 -66" stroke="#9a6a43" stroke-width="6" fill="none" stroke-linecap="round"/>${shirt}${face}${hat}</g>`;
+  if (pose === "walk") return `<g transform="translate(${x} ${y}) scale(${s})">
+    <path d="M-50 -46 Q0 -54 50 -46" stroke="#a8703f" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M-46 -46 V-26 M-54 -46 V-26 M46 -46 V-26 M54 -46 V-26" stroke="#7a5a3a" stroke-width="1.2"/>
+    <path d="M-58 -26 h16 l-2 16 h-12 z M42 -26 h16 l-2 16 h-12 z" fill="#8a5a33"/><path d="M-57 -24 h14 M43 -24 h14" stroke="#7cc6f2" stroke-width="3"/>
+    <path d="M-8 -18 L-12 0 M8 -18 L12 0" stroke="#3d5a8a" stroke-width="7" stroke-linecap="round"/>
+    ${shirt}${face}${hat}</g>`;
+  // ngồi xuống, tưới gáo nước
+  return `<g transform="translate(${x} ${y}) scale(${s})">
+    <path d="M-12 -18 Q-20 -4 -6 0 H10 M10 -18 Q18 -6 10 0" stroke="#3d5a8a" stroke-width="8" fill="none" stroke-linecap="round"/>
+    ${shirt}<path d="M16 -40 Q34 -38 40 -50" stroke="#9a6a43" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <g transform="translate(46 -54) rotate(40)"><path d="M-10 0 a10 8 0 0 0 20 0 z" fill="#7a4e2e"/><path d="M10 0 h18" stroke="#a8703f" stroke-width="3" stroke-linecap="round"/></g>
+    ${[0, 1, 2].map(i => `<path class="rain" style="animation-delay:${i * .17}s" d="M${56 + i * 5} ${-46 + i * 3} q3 6 0 9 q-3 -3 0 -9z" fill="#5fbff0"/>`).join("")}
+    ${face}${hat}</g>`;
+}
+function miniBean(x, y, s, mood, rot = 0) {
+  return `<g transform="translate(${x} ${y}) scale(${s}) rotate(${rot})">${beanBody(mood, 0)}</g>`;
+}
+function dryLand(w, h, horizon) {
+  return `<rect width="${w}" height="${horizon}" fill="#ffd79a"/><rect width="${w}" height="${horizon * .55}" fill="#ffc77a" opacity=".6"/>
+    <rect y="${horizon}" width="${w}" height="${h - horizon}" fill="#c99a5e"/>
+    <path d="M0 ${horizon + 2} Q${w * .3} ${horizon - 10} ${w * .6} ${horizon} T${w} ${horizon - 4} V${horizon + 6} H0 Z" fill="#b8874c"/>
+    <g stroke="#7a5233" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".75">
+      ${Array.from({ length: 9 }, (_, i) => { const cx = (i * 61) % w, cy = horizon + 14 + (i * 37) % (h - horizon - 16);
+        return `<path d="M${cx} ${cy} l10 4 l6 -6 l10 3 M${cx + 10} ${cy + 4} l-2 9"/>`; }).join("")}</g>`;
+}
+const deadTree = (x, y) => `<path d="M${x} ${y} V${y - 46} M${x} ${y - 30} l-14 -12 M${x} ${y - 38} l12 -14 M${x - 8} ${y - 37} l-4 -8" stroke="#6b4a2e" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+const hotSun = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r * 1.9}" fill="#ffefb0" opacity=".55"/><circle cx="${x}" cy="${y}" r="${r}" fill="#ff9f3a"/><circle cx="${x}" cy="${y}" r="${r * .75}" fill="#ffb74d"/>`;
+
+const COMIC = [
+  [ // Trang 1
+    { cls: "wide", vb: "0 0 300 150", art: () => `${dryLand(300, 150, 78)}${hotSun(250, 34, 18)}
+        <g transform="translate(40 78)"><rect x="0" y="-24" width="44" height="24" fill="#d9c08a"/><path d="M-6 -22 L22 -42 L50 -22 Z" fill="#a8703f"/><rect x="16" y="-14" width="10" height="14" fill="#6b4a2e"/></g>
+        ${deadTree(130, 82)}${deadTree(210, 80)}
+        <g transform="translate(100 118)"><ellipse rx="16" ry="5" fill="#8a7a66"/><path d="M-16 0 V-10 H16 V0" fill="#a89a86"/><ellipse cy="-10" rx="16" ry="5" fill="#6b5a46"/></g>
+        <path d="M200 120 q4 -10 0 -18 M206 120 q-2 -8 4 -14" stroke="#b8954a" stroke-width="2.5" fill="none"/>`,
+      cap: "Ở một làng quê nghèo, trời đã ba tháng không mưa. Ruộng nứt nẻ, giếng cạn trơ đáy, cây cỏ héo khô cả rồi." },
+    { vb: "0 0 150 190", art: () => `${dryLand(150, 190, 70)}${hotSun(122, 26, 12)}
+        <ellipse cx="72" cy="150" rx="40" ry="8" fill="#7a5233" opacity=".35"/>${miniBean(80, 150, .62, "buon", -70)}
+        <path d="M100 112 q4 8 0 12 q-4 -4 0 -12z" fill="#7cc6f2"/>`,
+      say: { text: "Khát quá... Liệu mình có được nảy mầm không?", style: "left:6px;right:6px;top:6px" } },
+    { vb: "0 0 150 190", art: () => `${dryLand(150, 190, 80)}${hotSun(24, 26, 10)}
+        <path d="M150 120 Q90 130 70 190 H100 Q110 140 150 132 Z" fill="#d9b47a"/>${farmer(96, 160, .95, "walk")}`,
+      cap: "Một buổi trưa, có người nông dân tốt bụng gánh nước đi ngang qua...", capBottom: true },
+  ],
+  [ // Trang 2
+    { cls: "wide", vb: "0 0 300 150", art: () => `${dryLand(300, 150, 60)}
+        <ellipse cx="222" cy="134" rx="50" ry="9" fill="#5a3a22" opacity=".3"/><path d="M182 132 q40 8 80 0" stroke="#5fbff0" stroke-width="5" fill="none" opacity=".6"/>
+        ${miniBean(222, 134, .62, "ngac")}${farmer(120, 140, 1.05, "kneel")}
+        ${[[160, 76], [226, 70], [238, 100]].map(([x, y]) => `<path transform="translate(${x} ${y})" d="M0 -6 L1.6 -1.6 L6 0 L1.6 1.6 L0 6 L-1.6 1.6 L-6 0 L-1.6 -1.6 Z" fill="#fff"/>`).join("")}`,
+      cap: "Người ấy dừng chân, múc một gáo nước mát tưới lên hạt đậu nhỏ.",
+      say: { text: "Ơ... mát quá! Bạn là ai vậy?", style: "right:8px;top:62px;max-width:44%" } },
+    { vb: "0 0 150 190", sky: "#e6f5d8", art: () => `<rect width="150" height="190" fill="#e6f5d8"/><circle cx="75" cy="120" r="70" fill="#fff" opacity=".6"/>
+        <rect y="160" width="150" height="30" fill="#b57d4e"/>${miniBean(75, 168, .78, "thuong")}`,
+      say: { text: "Mình là Bé Đậu. Mình ước được lớn lên, ra thật nhiều quả cho cả làng.", style: "left:6px;right:6px;top:6px" } },
+    { vb: "0 0 150 190", sky: "#fff0c2", art: () => `<rect width="150" height="190" fill="#fff0c2"/><rect y="150" width="150" height="40" fill="#9fd07a"/>
+        ${farmer(46, 172, .85, "stand")}
+        ${miniBean(108, 170, .5, "vui")}
+        <path transform="translate(78 92)" d="M0 8 C-14 -4 -6 -16 0 -8 C6 -16 14 -4 0 8 Z" fill="#ff8fab"/>`,
+      say: { text: "Nghe nói bạn cũng có một ước mơ riêng? Kể mình nghe, mình cùng lớn lên nha!", style: "left:6px;right:6px;top:6px" } },
+  ],
+];
+function renderComic() {
+  const page = COMIC[state.page];
+  $("#comic").classList.add("active");
+  $("#comic-page").textContent = `Trang ${state.page + 1}/${COMIC.length}`;
+  $("#comic-cells").innerHTML = page.map(c => {
+    // nới khung lên trên để tranh không bị cắt khi ô cao hơn bản vẽ
+    const [, , w, h] = c.vb.split(" ").map(Number), ext = c.cls ? 110 : 90;
+    const sky = `<rect y="${-ext}" width="${w}" height="${ext + 4}" fill="${c.sky || "#ffd79a"}"/>`;
+    return `<div class="cell ${c.cls || ""}">
+      <svg viewBox="0 ${-ext} ${w} ${h + ext}" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${sky}${c.art()}</svg>
+      ${c.cap ? `<div class="cap ${c.capBottom ? "bottom" : ""}">${c.cap}</div>` : ""}
+      ${c.say ? `<div class="say" style="${c.say.style}">${c.say.text}</div>` : ""}</div>`; }).join("");
+  const cells = [...$("#comic-cells").children];
+  cells.forEach((el, i) => setTimeout(() => el.classList.add("on"), 120 + i * 450));
+  $("#btn-comic").textContent = state.page < COMIC.length - 1 ? "Lật trang" : "Giúp Bé Đậu ươm mầm";
+}
+$("#btn-comic").addEventListener("click", () => {
+  if (state.page < COMIC.length - 1) { state.page++; renderComic(); return; }
+  $("#comic").classList.remove("active");
+  $("#sign").hidden = true;
+  state.mood = "thuong"; drawBean("hop");
+  say("Người nông dân tốt bụng ơi, cho Bé Đậu biết tên bạn nhé!");
+  view("v-form");
+});
+function renderStory() {
+  const s = CONFIG.story[state.storyIdx];
+  state.mood = s.mood; drawBean(state.storyIdx ? "hop" : "");
+  say(s.text);
+  $("#story-dots").innerHTML = CONFIG.story.map((_, i) => `<i class="${i <= state.storyIdx ? "on" : ""}"></i>`).join("");
+  $("#btn-story").textContent = state.storyIdx === CONFIG.story.length - 1 ? "Mình giúp Bé Đậu!" : "Tiếp";
+}
+$("#btn-story").addEventListener("click", () => {
+  if (state.storyIdx < CONFIG.story.length - 1) { state.storyIdx++; renderStory(); return; }
+  state.mood = "thuong"; drawBean();
+  say("Trước khi gieo hạt, cho Bé Đậu biết bạn là ai nhé!");
+  view("v-form");
+});
+
+/* ---------------- Form ---------------- */
+function ageGroup(a) { return a < 18 ? "Dưới 18" : a <= 24 ? "18–24" : a <= 34 ? "25–34" : a <= 44 ? "35–44" : "45+"; }
+$("#lead-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target));
+  const err = (m) => { $("#form-err").textContent = m; };
+  const age = parseInt(f.age, 10);
+  const phone = (f.phone || "").replace(/[\s.\-()]/g, "").replace(/^\+84/, "0").replace(/^84(?=\d{9}$)/, "0");
+  if (!f.name.trim()) return err("Bạn nhập tên giúp Bé Đậu nhé.");
+  if (!(age >= 10 && age <= 99)) return err("Tuổi chưa đúng, bạn kiểm tra lại nhé.");
+  if (!f.job.trim()) return err("Bạn cho biết nghề nghiệp nhé.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim())) return err("Email chưa đúng định dạng.");
+  if (!$("#f-consent").checked) return err("Bạn tick đồng ý giúp Bé Đậu nhé.");
+  err("");
+  state.lead = { name: f.name.trim(), age, job: f.job.trim(), email: f.email.trim().toLowerCase(), phone, website: f.website || "" };
+  store("chibi_lead", { ...state.lead, website: "" });
+  startQuiz();
+});
+
+/* ---------------- Câu hỏi ---------------- */
+function startQuiz() {
+  state.q = 0; state.stage = 0; state.answers = []; state.mood = "ngu"; state.busy = false;
+  $("#weeds").innerHTML = weedsSVG(); setSun(false); drawProps(); drawBean();
+  updateHud(); renderQuestion();
+}
+const fill = (t) => t.replace(/\{ten\}/g, state.lead ? state.lead.name : "bạn");
+function renderQuestion() {
+  const Q = CONFIG.questions[state.q];
+  state.mood = state.q === 0 ? "thuong" : "thuong"; drawBean();
+  say(fill(Q.say));
+  $("#qnum").textContent = `Câu ${state.q + 1}/${CONFIG.questions.length} · ${TOOLS[Q.care].name}`;
+  $("#qtext").textContent = Q.q;
+  $("#opts").innerHTML = "";
+  Q.a.forEach((txt, i) => {
+    const b = document.createElement("button");
+    b.className = "opt"; b.type = "button"; b.textContent = txt;
+    const isOther = Q.other && i === Q.a.length - 1;
+    b.addEventListener("click", () => isOther ? askOther(b) : answer(b, txt));
+    $("#opts").appendChild(b);
+  });
+  view("v-quiz");
+}
+function askOther(btn) {
+  if ($("#other-box")) return;
+  const box = document.createElement("div"); box.className = "other"; box.id = "other-box";
+  box.innerHTML = `<input id="other-input" type="text" maxlength="120" placeholder="Bạn ghi cụ thể giúp Bé Đậu nhé" aria-label="Câu trả lời khác"><button type="button">Xong</button>`;
+  btn.after(box); btn.classList.add("picked");
+  const inp = box.querySelector("input"); inp.focus();
+  const go = () => { const v = inp.value.trim(); if (!v) { inp.focus(); return; } answer(btn, "Khác: " + v); };
+  box.querySelector("button").addEventListener("click", go);
+  inp.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+}
+async function answer(btn, txt) {
+  if (state.busy) return; state.busy = true;
+  const Q = CONFIG.questions[state.q];
+  document.querySelectorAll(".opt").forEach(o => o.disabled = true); btn.classList.add("picked");
+  state.answers.push({ key: Q.key, value: txt });
+  hush();
+  await care(Q.care);
+  state.q++; state.stage = state.q; state.mood = "vui";
+  drawProps(); drawBean("grow"); updateHud();
+  $("#fx").innerHTML = fxSparkles(200, 486 - 110 * BEAN_SCALE[state.stage]);
+  say(Q.done);
+  toast(`${toolIcon(Q.care)}<span>${STAGES[state.stage]}!</span>`);
+  await wait(1500);
+  $("#fx").innerHTML = "";
+  state.busy = false;
+  if (state.q < CONFIG.questions.length) renderQuestion();
+  else finish();
+}
+async function care(kind) {
+  const fx = $("#fx");
+  if (kind === "water") { fx.innerHTML = fxWater(); await wait(1500); }
+  else if (kind === "fert") { fx.innerHTML = `<g class="drop">${sack(270, 420)}</g>` + fxFert(); await wait(1200); }
+  else if (kind === "sun") { setSun(true); fx.innerHTML = fxSun(); await wait(1300); }
+  else if (kind === "weed") {
+    $("#weeds").querySelectorAll("[data-weed]").forEach((w, i) => { w.style.animationDelay = i * .08 + "s"; w.classList.add("flyaway"); });
+    await wait(1100); $("#weeds").innerHTML = "";
+  }
+  else if (kind === "stake") { await wait(200); }
+  else if (kind === "harvest") { fx.innerHTML = fxSun(); await wait(600); }
+  fx.innerHTML = "";
+}
+
+/* ---------------- Gửi data & kết quả ---------------- */
+async function finish() {
+  view("v-send"); say("Bé Đậu đang hái quả, chờ xíu nha!");
+  const L = state.lead;
+  const params = new URLSearchParams(location.search);
+  const payload = {
+    name: L.name, age: L.age, job: L.job, email: L.email, phone: L.phone,
+    device: deviceId(), round: (store("chibi_rounds") || 0) + 1, replay: !!state.isReplay,
+    answers: [{ key: "Nhóm tuổi", value: L.age ? ageGroup(L.age) : "" }, { key: "Linh vật chọn", value: "Bé Đậu" }, { key: "Bộ câu hỏi", value: CONFIG.setTitle }, ...state.answers],
+    source: params.get("utm_source") || (document.referrer ? new URL(document.referrer).hostname : "Trực tiếp"),
+    campaign: params.get("utm_campaign") || "",
+    deviceType: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "Điện thoại" : "Máy tính",
+    duration: Math.round((Date.now() - state.startedAt) / 1000),
+    consent: "Đồng ý",
+    website: L.website || "",
+  };
+  store("chibi_rounds", payload.round);
+  await Promise.all([sendLead(payload), wait(1200)]);
+  const result = { name: L.name, email: L.email, mascot: "dau" };
+  store("chibi_result", result);
+  showDone(result);
+}
+function deviceId() {
+  let id = store("chibi_device");
+  if (!id) { id = "TB-" + Math.random().toString(36).slice(2, 8).toUpperCase(); store("chibi_device", id); }
+  return id || state.tmpDevice || (state.tmpDevice = "TB-" + Math.random().toString(36).slice(2, 8).toUpperCase());
+}
+async function sendLead(payload) {
+  if (!CONFIG.scriptUrl) {
+    const list = store("chibi_demo_leads") || []; list.push({ time: new Date().toISOString(), ...payload }); store("chibi_demo_leads", list);
+    console.info("[Demo] Chưa có scriptUrl nên data chỉ lưu trên trình duyệt:", payload);
+    return;
+  }
+  try {
+    await fetch(CONFIG.scriptUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+  } catch { const q = store("chibi_retry") || []; q.push(payload); store("chibi_retry", q); }
+}
+(function retryPending() {
+  const q = store("chibi_retry"); if (!q || !q.length || !CONFIG.scriptUrl) return;
+  store("chibi_retry", []); q.forEach(sendLead);
+})();
+function showDone(r) {
+  state.mood = "vui"; drawBean("hop");
+  say(`Cảm ơn <b>${r.name.replace(/[<>&]/g, "")}</b> nhiều lắm! Nhờ bạn mà Bé Đậu đã lớn và ra thật nhiều quả.`);
+  $("#done-name").textContent = r.name;
+  view("v-done"); confetti();
+}
+function confetti() {
+  const colors = ["#ffd84d", "#6cbf4a", "#e8774a", "#b98ae6", "#5fbff0", "#ffb3c7"];
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement("i"); c.className = "confetti";
+    c.style.left = Math.random() * 100 + "%"; c.style.background = colors[i % colors.length];
+    c.style.animationDuration = 1.8 + Math.random() * 1.6 + "s"; c.style.animationDelay = Math.random() * .5 + "s";
+    $("#app").appendChild(c); setTimeout(() => c.remove(), 4200);
+  }
+}
+$("#btn-replay").addEventListener("click", () => { state.isReplay = true; state.startedAt = Date.now(); startQuiz(); });
+$("#btn-share") && $("#btn-share").addEventListener("click", async () => {
+  const data = { title: "Vườn của Bé Đậu", text: "Chơi 2 phút chăm Bé Đậu lớn lên trong khu vườn quê!", url: location.href.split("?")[0] };
+  try { if (navigator.share) { await navigator.share(data); return; } await navigator.clipboard.writeText(data.url); $("#share-note").textContent = "Đã sao chép link, gửi bạn bè nhé!"; }
+  catch { $("#share-note").textContent = data.url; }
+});
+
+/* Xem nhanh từng giai đoạn khi thiết kế: thêm ?giaidoan=0..6 vào link */
+(function preview() {
+  const g = new URLSearchParams(location.search).get("giaidoan");
+  if (g === null) return;
+  state.stage = state.q = Math.max(0, Math.min(6, +g)); state.mood = state.stage ? "vui" : "ngu";
+  if (state.q >= 4) $("#weeds").innerHTML = ""; if (state.q >= 3) setSun(true);
+  drawProps(); drawBean(); updateHud(); say(CONFIG.questions[Math.max(0, state.q - 1)].done);
+  const Q = CONFIG.questions[Math.min(state.q, 5)];
+  $("#qnum").textContent = `Câu ${Math.min(state.q, 5) + 1}/6 · ${TOOLS[Q.care].name}`; $("#qtext").textContent = Q.q;
+  $("#opts").innerHTML = Q.a.map(t => `<button class="opt" type="button">${t}</button>`).join(""); view("v-quiz");
+})();
+</script>
+</body>
+</html>

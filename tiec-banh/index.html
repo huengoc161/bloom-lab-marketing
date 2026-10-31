@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tiệc Bánh Chibi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Chọn một bạn chibi, trả lời 6 câu hỏi và cho bạn ấy ăn bánh. Chơi 2 phút!">
+<meta property="og:title" content="Tiệc Bánh Chibi">
+<meta property="og:description" content="Trả lời 6 câu hỏi, cho bạn chibi ăn bánh no căng bụng.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: website một trang (giới thiệu → cách chơi → hỏi đáp); game mở toàn màn hình với sân khấu linh vật cố định phía trên. */
+:root {
+  --bg: #fff8e7;          /* nền kem bơ */
+  --paper: #ffffff;
+  --ink: #2b2a3a;
+  --ink-soft: #6c6a7d;
+  --honey: #f2a31b;       /* vàng mật, màu chủ đạo */
+  --candy: #e8577a;       /* nút chính */
+  --mint: #5ab9a8;
+  --line: #f0e4c0;
+  --bad: #c94a4a;
+  --display: "Baloo 2", "Be Vietnam Pro", system-ui, sans-serif;
+  --body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #1d1b26; --paper: #282634; --ink: #f6f2e6; --ink-soft: #b5b1c4; --line: #3a3747; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #1d1b26; --paper: #282634; --ink: #f6f2e6; --ink-soft: #b5b1c4; --line: #3a3747; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: inherit; }
+button { font: inherit; }
+:focus-visible { outline: 3px solid var(--candy); outline-offset: 3px; }
+
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; cursor: pointer; text-decoration: none;
+  font-family: var(--display); font-weight: 800; font-size: 20px; padding: 14px 30px; border-radius: 999px;
+  background: var(--candy); color: #fff; box-shadow: 0 5px 0 #b63b5c; transition: transform .1s, box-shadow .1s;
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #b63b5c; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Trang chủ kiểu poster: ít chữ, linh vật + tên game + nút PLAY */
+.poster { min-height: 100svh; display: grid; place-items: center; padding: 16px; }
+.poster-card {
+  width: 100%; max-width: 560px; min-height: calc(100svh - 32px); border-radius: 28px;
+  background: #5fb0f0; color: #fff; text-align: center;
+  display: grid; align-content: center; justify-items: center; gap: 14px; padding: 28px 18px 22px;
+  box-shadow: inset 0 0 0 6px rgba(255,255,255,.35);
+}
+.hero-art { width: 100%; }
+.hero-art svg { width: 100%; height: auto; display: block; }
+.poster-card { position: relative; }
+.hearts { position: absolute; top: 18px; font-size: 22px; letter-spacing: 2px; color: #ff5c93; text-shadow: 2px 2px 0 #1f2a5a; }
+.hearts.left { left: 22px; } .hearts.right { right: 22px; }
+.kicker { font-family: var(--display); font-weight: 800; font-size: 18px; color: #1f2a5a; margin-top: 18px; }
+.poster .title {
+  display: grid; gap: 0; font-family: var(--display); font-weight: 800; line-height: .95;
+  font-size: clamp(54px, 15vw, 88px); color: #8ff5ec; letter-spacing: .01em;
+  -webkit-text-stroke: 8px #1f2a5a; paint-order: stroke fill;
+  text-shadow: 0 7px 0 #1f2a5a;
+}
+.tagline { font-weight: 700; font-size: 15px; color: #fff; }
+.play {
+  width: 148px; height: 148px; border-radius: 50%; border: 7px solid #fff; cursor: pointer; margin-top: 10px;
+  background: #f2a31b; color: #fff; box-shadow: 0 7px 0 #c47f0c, 0 14px 30px rgba(0,0,0,.18);
+  display: grid; place-items: center; align-content: center; gap: 0;
+  font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: .08em;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+.play svg { width: 52px; height: 52px; margin-left: 6px; }
+.play:active { transform: translateY(5px); box-shadow: 0 2px 0 #c47f0c; }
+@keyframes pulse { 50% { transform: scale(1.07); } }
+.poster-foot { font-size: 12px; color: #fff; opacity: .85; margin-top: 8px; }
+
+/* ---------- Game ---------- */
+.game { position: fixed; inset: 0; z-index: 50; background: var(--bg); overflow-y: auto; padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); }
+.game-inner { max-width: 480px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; gap: 14px;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
+.game-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 44px; }
+.close { border: 0; background: var(--paper); color: var(--ink); width: 40px; height: 40px; border-radius: 50%; font-size: 22px; cursor: pointer; }
+.cakes { display: flex; gap: 4px; }
+.cakes svg { width: 24px; height: 24px; opacity: .25; filter: grayscale(1); transition: opacity .3s, filter .3s, transform .3s; }
+.cakes svg.on { opacity: 1; filter: none; transform: scale(1.12); }
+.stage { position: relative; background: var(--paper); border-radius: 26px; overflow: hidden; }
+.stage svg { display: block; width: 100%; height: auto; }
+.view { display: none; flex-direction: column; gap: 14px; animation: pop .35s ease; }
+.view.active { display: flex; }
+@keyframes pop { from { opacity: .4; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.bubble { position: relative; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 18px; padding: 8px 14px;
+  font-family: var(--display); font-weight: 600; font-size: 16px; line-height: 1.3; }
+.bubble::after { content: ""; position: absolute; top: -12px; left: 46px; border: 10px solid transparent; border-bottom-color: var(--ink); border-top: 0; }
+.hint { text-align: center; font-size: 14px; color: var(--ink-soft); }
+.card { background: #ffffff; color: #1d1b26; border-radius: 22px; padding: 14px 16px; display: grid; gap: 10px; box-shadow: 0 4px 16px rgba(60,40,10,.08); }
+.card .muted, .card .opt-note, .card .consent { color: #5f5c6b; }
+.qnum { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--honey); }
+.qtext { font-family: var(--display); font-size: 18px; line-height: 1.3; color: #1d1b26; }
+.opts { display: grid; gap: 8px; }
+.opt { text-align: left; border: 2px solid #e6dcc4; background: #ffffff; color: #1d1b26; border-radius: 12px; padding: 9px 12px; cursor: pointer; font-size: 15px; transition: border-color .15s, background .15s; }
+.opt:hover:not(:disabled) { border-color: var(--honey); }
+.opt:disabled { cursor: default; }
+.opt.picked { border-color: var(--honey); background: rgba(242,163,27,.16); }
+
+.pick-title { font-size: 30px; text-align: center; }
+.pick-grid { display: grid; gap: 12px; }
+.pick { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; text-align: left; cursor: pointer;
+  background: var(--paper); border: 3px solid transparent; border-radius: 22px; padding: 12px 16px 12px 10px; color: var(--ink); transition: border-color .15s, transform .15s; }
+.pick:hover { border-color: var(--honey); transform: translateY(-2px); }
+.pick svg { width: 96px; height: auto; }
+.pick b { font-family: var(--display); font-size: 22px; display: block; line-height: 1.2; }
+.pick span { font-size: 14px; color: var(--ink-soft); display: block; }
+.pick .set { font-size: 12px; font-weight: 700; color: var(--candy); }
+.pick .played { display: block; margin-top: 4px; font-style: normal; font-size: 12px; font-weight: 700; color: var(--mint); }
+
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 140%); z-index: 60;
+  background: var(--ink); color: var(--bg); border-radius: 18px; padding: 10px 16px; display: flex; gap: 10px; align-items: center;
+  font-weight: 700; font-size: 15px; transition: transform .35s cubic-bezier(.2,1.4,.4,1), visibility .35s; max-width: calc(100% - 32px); visibility: hidden; }
+.toast.show { transform: translate(-50%, 0); visibility: visible; }
+.toast svg { width: 36px; height: 36px; flex: 0 0 auto; }
+
+form { display: grid; gap: 12px; }
+label { display: grid; gap: 4px; font-size: 14px; font-weight: 700; }
+input[type=text], input[type=tel], input[type=email], input[type=number] { font: inherit; font-size: 16px; padding: 12px 14px; border-radius: 12px; border: 2px solid #e6dcc4; background: #fffdf7; color: #1d1b26; width: 100%; }
+input:focus { outline: none; border-color: var(--honey); }
+.consent { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+.consent input { width: 18px; height: 18px; margin-top: 2px; flex: 0 0 auto; accent-color: var(--candy); }
+.two { display: grid; grid-template-columns: 1.6fr 1fr; gap: 10px; }
+.opt-note { font-weight: 400; color: var(--ink-soft); }
+.other { display: flex; gap: 8px; }
+.other input { flex: 1; min-width: 0; }
+.other button { border: 0; border-radius: 12px; padding: 0 16px; background: var(--honey); color: #2b2a3a; font-weight: 700; cursor: pointer; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.err { color: var(--bad); font-size: 14px; min-height: 20px; }
+.result { text-align: center; }
+.result h2 { font-size: 30px; }
+.muted { color: var(--ink-soft); font-size: 14px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2.5px var(--line); }
+.card .btn.ghost { background: #fff; color: #e5527a; box-shadow: inset 0 0 0 2.5px #e5527a; }
+
+/* Hoạt ảnh trong sân khấu (SVG) */
+.anim { transform-box: fill-box; transform-origin: 50% 100%; }
+.jump { animation: jump .7s ease; }
+@keyframes jump { 0% { transform: none; } 22% { transform: translateY(-30px) scale(.96, 1.06); } 45% { transform: translateY(0) scale(1.06, .94); } 65% { transform: translateY(-12px); } 100% { transform: none; } }
+.chomp { animation: chomp .3s ease 4; }
+@keyframes chomp { 50% { transform: scale(1.05, .95); } }
+.drop { animation: drop .45s cubic-bezier(.3,1.5,.5,1); }
+@keyframes drop { from { transform: translateY(-160px) rotate(-20deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.popin { animation: popin .5s cubic-bezier(.3,1.6,.5,1); transform-origin: 50% 50%; }
+@keyframes popin { from { transform: scale(0); } to { transform: scale(1); } }
+.pet { animation: pet .5s ease-in-out 3 alternate; transform-box: fill-box; }
+@keyframes pet { from { transform: translateX(-28px) rotate(-6deg); } to { transform: translateX(28px) rotate(6deg); } }
+.crumb { animation: crumb .6s ease-out forwards; transform-box: fill-box; }
+@keyframes crumb { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
+.confetti { position: fixed; top: -12px; width: 9px; height: 13px; z-index: 70; pointer-events: none; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+
+@media (max-width: 820px) {
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- ================= WEBSITE ================= -->
+<main class="poster">
+  <div class="poster-card">
+    <span class="hearts left" aria-hidden="true">♥♥♥</span><span class="hearts right" aria-hidden="true">♥♥♥</span>
+    <p class="kicker">Mini game 2 phút</p>
+    <h1 class="title"><span>Tiệc Bánh</span><span>Chibi</span></h1>
+    <button class="play" data-play aria-label="Play, bắt đầu chơi">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M14 9 L32 20 L14 31 Z" fill="currentColor" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg>
+      <span>PLAY</span>
+    </button>
+    <p class="tagline">6 câu hỏi · Miễn phí</p>
+    <div class="hero-art" id="hero-art" aria-hidden="true"></div>
+    <p class="poster-foot"><span data-brand></span> · <a href="#" data-policy>Chính sách bảo mật</a></p>
+  </div>
+</main>
+
+<!-- ================= GAME ================= -->
+<div class="game" id="game" hidden role="dialog" aria-modal="true" aria-label="Tiệc Bánh Chibi">
+  <div class="game-inner">
+    <div class="game-top">
+      <button class="close" id="btn-close" aria-label="Đóng game">×</button>
+      <div class="cakes" id="cakes" aria-hidden="true"></div>
+      <span style="width:40px"></span>
+    </div>
+
+    <div class="view" id="v-start">
+      <h2 class="pick-title">Giới thiệu nhanh nhé!</h2>
+      <div class="card">
+        <form id="lead-form" novalidate>
+          <div class="two">
+            <label for="f-name">Tên<input id="f-name" name="name" type="text" autocomplete="given-name" placeholder="VD: Huệ" required></label>
+            <label for="f-age">Tuổi<input id="f-age" name="age" type="number" inputmode="numeric" min="10" max="99" required></label>
+          </div>
+          <label for="f-job">Nghề nghiệp<input id="f-job" name="job" type="text" list="jobs" placeholder="VD: chủ shop" required></label>
+          <datalist id="jobs"><option value="Chủ shop online"><option value="Chủ doanh nghiệp"><option value="Chủ cửa hàng, quán"><option value="Nhân viên marketing"><option value="Freelancer"><option value="Sinh viên"></datalist>
+          <label for="f-email">Email<input id="f-email" name="email" type="email" autocomplete="email" required></label>
+          <div class="hp" aria-hidden="true"><label for="f-website">Website<input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+          <label class="consent" for="f-consent"><input id="f-consent" type="checkbox" name="consent">
+            <span>Đồng ý cho lưu thông tin để liên hệ khi tôi cần (<a href="#" data-policy>chính sách</a>)</span></label>
+          <div class="err" id="form-err" role="alert"></div>
+          <button class="btn" type="submit" id="btn-start">Bắt đầu chơi</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="view" id="v-pick">
+      <h2 class="pick-title">Chọn 1 trong 3 trò chơi</h2>
+      <div class="pick-grid" id="pick-grid"></div>
+    </div>
+
+    <div class="stage" id="stage" hidden></div>
+
+    <div class="view" id="v-comic">
+      <div class="bubble" id="comic-text"></div>
+      <button class="btn" id="btn-comic">Tiếp</button>
+      <p class="hint" id="comic-step"></p>
+    </div>
+
+    <div class="view" id="v-quiz">
+      <div class="bubble" id="quiz-say"></div>
+      <div class="card">
+        <span class="qnum" id="qnum"></span>
+        <div class="qtext" id="qtext"></div>
+        <div class="opts" id="opts"></div>
+      </div>
+    </div>
+
+    <div class="view" id="v-send">
+      <div class="bubble" id="send-say"></div>
+      <p class="hint">Đang gửi câu trả lời...</p>
+    </div>
+
+    <div class="view" id="v-done">
+      <div class="card result">
+        <h2 id="done-title"></h2>
+        <p>Cảm ơn <b id="done-name"></b> đã chơi cùng bạn chibi!</p>
+        <p class="muted">Câu trả lời của bạn giúp chúng tôi hiểu hơn về người kinh doanh. Nếu bạn chọn muốn được tư vấn, chúng tôi sẽ nhắn qua email nhé.</p>
+        <div class="row"><button class="btn" id="btn-replay">↻ Chơi lại</button><a class="btn ghost" id="btn-site" href="https://bloom-lab-marketing.vercel.app" target="_blank" rel="noopener">Ghé thăm website</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<script>
+/* =================================================================
+   CẤU HÌNH: chị chỉ cần sửa trong khối này
+   ================================================================= */
+const CONFIG = {
+  brandName: "Thương hiệu của chị",
+  contact: "huengoc161@gmail.com",
+  policyUrl: "#",
+  // Link website của chị cho nút "Ghé thăm website" ở cuối game.
+  websiteUrl: "https://bloom-lab-marketing.vercel.app",
+  // Dán URL Web App Google Apps Script vào đây (xem HUONG-DAN.md). Để trống = chế độ demo.
+  scriptUrl: "https://script.google.com/macros/s/AKfycbyDTd5MOax8zDxxxki6C7tEBx6sq8mQmqdGhHdjgwcSQDO-aKLxyWPBdis3lGKXRUpvMw/exec",
+  // Chỉ dùng một linh vật? Ghi "muop", "dau" hoặc "mat". Để trống = cho khách tự chọn.
+  onlyMascot: "",
+
+  // Bánh tặng sau mỗi câu, theo thứ tự.
+  cakes: ["cupcake", "donut", "dau", "macaron", "flan", "nen"],
+
+  // {ten} sẽ được thay bằng tên linh vật. key: tên cột trong Google Sheet.
+  // Mỗi trò chơi một bộ câu hỏi. other: true = lựa chọn cuối cho khách tự ghi.
+  // {ten} sẽ được thay bằng tên linh vật. key: tên cột trong Google Sheet.
+  questionSets: {
+    muop: { title: "Dành cho người đang kinh doanh", questions: [
+    { key: "Lĩnh vực kinh doanh", say: "Meo! {ten} tò mò quá: bạn đang kinh doanh gì vậy?",
+      q: "Doanh nghiệp của bạn thuộc lĩnh vực nào?",
+      a: ["Thời trang, mỹ phẩm", "Ăn uống (F&B)", "Giáo dục, đào tạo", "Dịch vụ (spa, du lịch...)", "Bất động sản", "Khác"], other: true },
+    { key: "Người lo MXH + web", say: "Cá ngon quá! Vậy ai đang chăm sóc fanpage, website cho bạn?",
+      q: "Hiện ai đang lo mạng xã hội và website cho doanh nghiệp?",
+      a: ["Tôi tự làm", "Nhân viên nội bộ", "Thuê agency hoặc freelancer", "Chưa có ai làm"] },
+    { key: "Khó khăn lớn nhất", say: "Rừ rừ... {ten} hiểu rồi. Điều gì làm bạn đau đầu nhất?",
+      q: "Khó khăn lớn nhất khi xây dựng thương hiệu online?",
+      a: ["Không có thời gian", "Không biết làm nội dung", "Chạy quảng cáo tốn mà ít đơn", "Không đo được hiệu quả", "Chưa có chiến lược rõ ràng"] },
+    { key: "Sẵn sàng thuê duy trì", say: "Cuộn len vui quá! Câu này quan trọng nè.",
+      q: "Nếu bận quá mà có người quen nhận duy trì fanpage và website với chi phí nhỏ, bạn có chọn không?",
+      a: ["Có, tôi muốn được tư vấn ngay", "Có thể, tuỳ chi phí và chất lượng", "Chưa cần lúc này", "Không, tôi tự làm được"] },
+    { key: "Ngân sách hằng tháng", say: "Sữa ấm ngon ghê! Còn 2 câu nữa thôi.",
+      q: "Mỗi tháng bạn có thể chi bao nhiêu cho việc duy trì mạng xã hội và website?",
+      a: ["800 nghìn – 1,5 triệu", "1,5 – 5 triệu", "5 – 10 triệu", "Phương án khác"], other: true },
+    { key: "Kênh muốn được tư vấn", say: "Câu cuối rồi, {ten} sắp có ổ nệm êm để ngủ!",
+      q: "Nếu cần tư vấn, bạn muốn được liên hệ qua đâu?",
+      a: ["Zalo", "Gọi điện", "Email", "Gặp trực tiếp ở lớp"] },
+  ] },
+
+    dau: { title: "Dành cho người muốn bắt đầu kinh doanh", questions: [
+      { key: "Giai đoạn khởi nghiệp", say: "Mầm của {ten} giống ý tưởng kinh doanh của bạn đó! Bạn đang ở đâu rồi?",
+        q: "Bạn đang ở giai đoạn nào?",
+        a: ["Mới có ý tưởng", "Sẽ mở trong 3 tháng tới", "Đã bán thử vài đơn", "Đang đi làm, muốn bán thêm online"] },
+      { key: "Sản phẩm dự định", say: "Măm ngon quá! Bạn định bán gì nè?",
+        q: "Bạn định kinh doanh sản phẩm hay dịch vụ gì?",
+        a: ["Thời trang, mỹ phẩm", "Đồ ăn, thức uống", "Khoá học, dịch vụ", "Đồ handmade, quà tặng", "Khác"], other: true },
+      { key: "Nền tảng muốn bán", say: "{ten} còn đói nữa! Bạn muốn bán ở đâu?",
+        q: "Bạn muốn bán hàng chủ yếu trên nền tảng nào?",
+        a: ["TikTok Shop", "Shopee / Lazada", "Facebook / Zalo", "Website riêng", "Cửa hàng truyền thống"] },
+      { key: "Làm video TikTok/Reels", say: "Đã đi được nửa đường rồi nè!",
+        q: "Bạn có muốn đăng video ngắn (TikTok, Reels) để bán hàng không?",
+        a: ["Có, tôi tự quay được", "Muốn làm nhưng ngại lên hình", "Muốn thuê người làm giúp", "Không muốn làm video"] },
+      { key: "Cần website", say: "Còn 2 chiếc bánh nữa thôi!",
+        q: "Bạn có cần website riêng cho doanh nghiệp không?",
+        a: ["Cần ngay khi bắt đầu", "Cần, nhưng để sau", "Chưa biết website giúp được gì", "Không cần"] },
+      { key: "Nỗi lo khi bắt đầu", say: "Câu cuối rồi, mầm sắp nở hoa!",
+        q: "Điều bạn lo nhất khi bắt đầu kinh doanh là gì?",
+        a: ["Không biết tìm khách ở đâu", "Sợ tốn tiền quảng cáo mà không ra đơn", "Không biết xây thương hiệu từ đâu", "Làm một mình, thiếu thời gian", "Thiếu vốn"] },
+    ] },
+
+    mat: { title: "Dành cho người muốn tìm hiểu marketing", questions: [
+      { key: "Chủ đề muốn học", say: "Giúp mình tìm đường về nhà nha! Bạn thích tìm hiểu gì?",
+        q: "Bạn đang muốn tìm hiểu chủ đề marketing nào nhất?",
+        a: ["Chạy quảng cáo Facebook, TikTok", "Làm video ngắn thu hút", "Viết content bán hàng", "Xây thương hiệu cá nhân", "Dùng AI để làm marketing"] },
+      { key: "Nơi tìm kiến thức", say: "Mình bay tiếp được rồi! Bạn hay học ở đâu ta?",
+        q: "Bạn thường tìm kiến thức marketing ở đâu?",
+        a: ["Video TikTok, YouTube", "Hội nhóm Facebook", "Tìm trên Google", "Khoá học, lớp học", "Hỏi bạn bè, người quen"] },
+      { key: "Cách học yêu thích", say: "Rừng sáng dần lên rồi nè! Câu tiếp nha.",
+        q: "Bạn thích học theo cách nào?",
+        a: ["Video ngắn dưới 5 phút", "Khoá online có bài tập", "Lớp học trực tiếp", "Được kèm 1:1", "Tài liệu, mẫu có sẵn để làm theo"] },
+      { key: "Mong muốn sau khi học", say: "Đi được nửa đường rồi, mình thấy mùi hoa thơm!",
+        q: "Học xong, bạn mong muốn điều gì nhất?",
+        a: ["Có thêm đơn hàng", "Tự chạy được quảng cáo", "Tự làm nội dung đều đặn", "Thương hiệu được nhiều người biết", "Tiết kiệm tiền thuê ngoài"] },
+      { key: "Chi phí cho khoá học", say: "Còn 2 chỉ dẫn nữa là về tới nhà!",
+        q: "Bạn sẵn sàng chi bao nhiêu cho một khoá học marketing?",
+        a: ["Chỉ học miễn phí", "Dưới 500 nghìn", "500 nghìn – 2 triệu", "2 – 5 triệu", "Trên 5 triệu"] },
+      { key: "Muốn nhận thêm", say: "Câu cuối rồi, hình như mình nghe tiếng mẹ gọi!",
+        q: "Bạn muốn nhận thêm gì từ chúng mình?",
+        a: ["Bộ mẫu content", "Checklist chạy quảng cáo", "Video hướng dẫn ngắn", "Buổi tư vấn miễn phí", "Tham gia nhóm chia sẻ"] },
+    ] },
+  },
+};
+/* ================================================================= */
+
+const $ = (s) => document.querySelector(s);
+const OUT = "#3b2a1e";
+
+/* ---------------- Khuôn mặt chung ---------------- */
+function eyes(kind, lx, rx, y) {
+  if (kind === "vui" || kind === "an") return [lx, rx].map(x =>
+    `<path d="M${x-11} ${y+3} Q${x} ${y-11} ${x+11} ${y+3}" stroke="${OUT}" stroke-width="5" fill="none" stroke-linecap="round"/>`).join("");
+  const ry = kind === "ngac" ? 15 : 13, r = kind === "ngac" ? 9 : 10;
+  const tear = kind === "buon" ? `<path d="M${rx+10} ${y+12} q6 10 0 15 q-6 -5 0 -15z" fill="#7cc6f2"/>` : "";
+  const brow = kind === "buon" ? `<path d="M${lx-12} ${y-15} L${lx+8} ${y-21} M${rx+12} ${y-15} L${rx-8} ${y-21}" stroke="${OUT}" stroke-width="4" stroke-linecap="round"/>` : "";
+  return [lx, rx].map(x => `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${ry}" fill="${OUT}"/>
+    <circle cx="${x+3}" cy="${y-5}" r="4.2" fill="#fff"/><circle cx="${x-3.5}" cy="${y+5}" r="2" fill="#fff"/>`).join("") + brow + tear;
+}
+function mouth(kind, x, y) {
+  if (kind === "vui") return `<path d="M${x-9} ${y} Q${x} ${y+14} ${x+9} ${y} Z" fill="#d9536f" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/>`;
+  if (kind === "an") return `<ellipse cx="${x}" cy="${y+5}" rx="11" ry="12" fill="#a8324f" stroke="${OUT}" stroke-width="3"/><ellipse cx="${x}" cy="${y+11}" rx="6" ry="4" fill="#f27a93"/>`;
+  if (kind === "ngac") return `<ellipse cx="${x}" cy="${y+4}" rx="5" ry="6" fill="#d9536f" stroke="${OUT}" stroke-width="3"/>`;
+  if (kind === "buon") return `<path d="M${x-7} ${y+6} Q${x} ${y-1} ${x+7} ${y+6}" stroke="${OUT}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+  return `<path d="M${x-8} ${y} Q${x-4} ${y+6} ${x} ${y} Q${x+4} ${y+6} ${x+8} ${y}" stroke="${OUT}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+}
+const blush = (lx, rx, y) => `<ellipse cx="${lx}" cy="${y}" rx="10" ry="6" fill="#ff9fb0" opacity=".75"/><ellipse cx="${rx}" cy="${y}" rx="10" ry="6" fill="#ff9fb0" opacity=".75"/>`;
+
+/* ---------------- Bé Mật: ong bông xù ---------------- */
+// Viền lông xù: các gợn nhỏ quanh một hình elip
+function fuzzPath(cx, cy, rx, ry, n = 64, amp = 6) {
+  // Gợn lông không đều để nhìn mềm như bông, không bị răng cưa đều tăm tắp
+  const P = (t, k) => [cx + Math.cos(t) * rx * k, cy + Math.sin(t) * ry * k].map(v => v.toFixed(1)).join(" ");
+  let d = `M${P(0, 1)}`;
+  for (let i = 0; i < n; i++) {
+    const t0 = (i / n) * Math.PI * 2, t1 = ((i + 1) / n) * Math.PI * 2;
+    const k = 1 + (amp / Math.min(rx, ry)) * (0.6 + 0.6 * Math.abs(Math.sin(i * 2.7)));
+    d += ` Q${P(t0 + (t1 - t0) * 0.35, k)} ${P(t1, 1)}`;
+  }
+  return d + "Z";
+}
+// Bé Mật: ong tròn mũm mĩm, đầu to, thân sọc, cánh kem. Nhiều biểu cảm:
+// thuong, vui, an, buon, nho (nhắm mắt buồn), ngac, nhay (nháy mắt), hon (chu môi), cuoi (cười tít mắt)
+const BEE_INK = "#3a2416";
+function beeEye(x, y, kind, side) {
+  const arcUp = `<path d="M${x - 10} ${y + 3} Q${x} ${y - 9} ${x + 10} ${y + 3}" stroke="${BEE_INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;
+  const arcDown = `<path d="M${x - 10} ${y - 2} Q${x} ${y + 8} ${x + 10} ${y - 2}" stroke="${BEE_INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;
+  if (kind === "vui" || kind === "an" || kind === "cuoi") return arcUp;
+  if (kind === "nho") return arcDown;
+  if (kind === "nhay" && side > 0) return arcUp;
+  const rx = kind === "ngac" ? 12.5 : 11, ry = kind === "ngac" ? 15.5 : 13.5;
+  return `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${BEE_INK}"/>
+    <circle cx="${x + 3.5}" cy="${y - 5}" r="4.6" fill="#fff"/><circle cx="${x - 3.5}" cy="${y + 5}" r="1.9" fill="#fff"/>`;
+}
+function beeFace(k) {
+  const L = 86, R = 134, y = 106, mx = 110, my = 128;
+  const eyes = beeEye(L, y, k, -1) + beeEye(R, y, k, 1);
+  const brow = k === "buon" || k === "nho" ? `<path d="M${L - 10} ${y - 20} Q${L} ${y - 25} ${L + 8} ${y - 18} M${R + 10} ${y - 20} Q${R} ${y - 25} ${R - 8} ${y - 18}" stroke="${BEE_INK}" stroke-width="3" fill="none" stroke-linecap="round"/>`
+    : k === "ngac" ? `<path d="M${L - 9} ${y - 22} Q${L} ${y - 27} ${L + 9} ${y - 22} M${R - 9} ${y - 22} Q${R} ${y - 27} ${R + 9} ${y - 22}" stroke="${BEE_INK}" stroke-width="3" fill="none" stroke-linecap="round"/>` : "";
+  const tear = k === "buon" ? `<path d="M${R + 8} ${y + 12} q6 9 0 14 q-6 -5 0 -14z" fill="#8fd0f5" stroke="#4a9fd0" stroke-width="1"/>`
+    : k === "nho" ? `<path d="M${L - 4} ${y + 8} q5 8 0 12 q-5 -4 0 -12z M${R + 4} ${y + 8} q5 8 0 12 q-5 -4 0 -12z" fill="#8fd0f5" stroke="#4a9fd0" stroke-width="1"/>` : "";
+  const open = (w, h) => `<path d="M${mx - w} ${my - 2} Q${mx} ${my + h} ${mx + w} ${my - 2} Z" fill="#c9405e" stroke="${BEE_INK}" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M${mx - w * .55} ${my + h * .45} Q${mx} ${my + h * .2} ${mx + w * .55} ${my + h * .45} Q${mx} ${my + h * .75} ${mx - w * .55} ${my + h * .45} Z" fill="#ff8fa3"/>`;
+  const mouth = {
+    vui: open(11, 18), cuoi: open(13, 20), an: open(9, 14), nhay: open(8, 12),
+    ngac: `<ellipse cx="${mx}" cy="${my + 3}" rx="6" ry="7.5" fill="#c9405e" stroke="${BEE_INK}" stroke-width="2.5"/>`,
+    hon: `<path d="M${mx - 2} ${my - 5} q8 3 0 7 q8 3 0 7" stroke="${BEE_INK}" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    buon: `<path d="M${mx - 7} ${my + 5} Q${mx} ${my - 2} ${mx + 7} ${my + 5}" stroke="${BEE_INK}" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    nho: `<path d="M${mx - 6} ${my + 4} Q${mx} ${my} ${mx + 6} ${my + 4}" stroke="${BEE_INK}" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  }[k] || `<path d="M${mx - 8} ${my} Q${mx} ${my + 8} ${mx + 8} ${my}" stroke="${BEE_INK}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  const extra = k === "hon" ? `<path d="M150 112 c-4 -6 -12 -2 -8 4 l8 7 l8 -7 c4 -6 -4 -10 -8 -4z" fill="#ff6f8f" transform="translate(16 -26)"/>`
+    : k === "nhay" ? `<path d="M164 78 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#ffd23f" stroke="${BEE_INK}" stroke-width="1.5"/>` : "";
+  const blushO = k === "hon" || k === "cuoi" || k === "an" ? .85 : .6;
+  return `<ellipse cx="${L - 16}" cy="${y + 18}" rx="11" ry="7" fill="#ff9a8a" opacity="${blushO}"/><ellipse cx="${R + 16}" cy="${y + 18}" rx="11" ry="7" fill="#ff9a8a" opacity="${blushO}"/>
+    ${eyes}${brow}${tear}${mouth}${extra}`;
+}
+function roundBee(k) {
+  const wing = (x, y, rx, ry, rot) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${x} ${y})" fill="#fffaf0" fill-opacity=".92" stroke="#d6bd85" stroke-width="2.5"/>
+    <path d="M${x} ${y} l${Math.cos(rot * Math.PI / 180) * rx * .7} ${Math.sin(rot * Math.PI / 180) * rx * .7}" stroke="#eadcb8" stroke-width="2" transform="rotate(0)"/>`;
+  return `
+    <defs>
+      <radialGradient id="beehead2" cx=".42" cy=".35" r=".75"><stop offset="0" stop-color="#ffe066"/><stop offset=".7" stop-color="#ffcf2e"/><stop offset="1" stop-color="#f2b51c"/></radialGradient>
+      <clipPath id="beebody2"><ellipse cx="110" cy="180" rx="52" ry="44"/></clipPath>
+    </defs>
+    ${wing(44, 132, 34, 22, -35)}${wing(176, 132, 34, 22, 35)}${wing(50, 168, 24, 15, 20)}${wing(170, 168, 24, 15, -20)}
+    <path d="M94 50 C90 34 82 24 72 22" stroke="${BEE_INK}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="71" cy="21" r="6" fill="${BEE_INK}"/>
+    <path d="M126 50 C130 34 138 24 148 22" stroke="${BEE_INK}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="149" cy="21" r="6" fill="${BEE_INK}"/>
+    <ellipse cx="88" cy="222" rx="10" ry="8" fill="${BEE_INK}"/><ellipse cx="132" cy="222" rx="10" ry="8" fill="${BEE_INK}"/>
+    <ellipse cx="110" cy="180" rx="52" ry="44" fill="#ffcf2e"/>
+    <g clip-path="url(#beebody2)">
+      <rect x="50" y="166" width="120" height="16" fill="#4a2a1c"/>
+      <rect x="50" y="196" width="120" height="16" fill="#4a2a1c"/>
+      <ellipse cx="110" cy="230" rx="60" ry="10" fill="#4a2a1c"/>
+    </g>
+    <ellipse cx="110" cy="180" rx="52" ry="44" fill="none" stroke="${BEE_INK}" stroke-width="3"/>
+    <ellipse cx="66" cy="182" rx="9" ry="12" fill="${BEE_INK}" transform="rotate(20 66 182)"/><ellipse cx="154" cy="182" rx="9" ry="12" fill="${BEE_INK}" transform="rotate(-20 154 182)"/>
+    <ellipse cx="110" cy="104" rx="62" ry="56" fill="url(#beehead2)" stroke="${BEE_INK}" stroke-width="3"/>
+    <ellipse cx="84" cy="74" rx="18" ry="8" fill="#fff4b8" opacity=".75" transform="rotate(-22 84 74)"/>
+    ${beeFace(k)}`;
+}
+
+/* ---------------- Bé Đậu: vẽ theo giai đoạn ---------------- */
+const BEAN = "#a6d96a", BEAN_DARK = "#78b347", LEAF = "#6cc06a", LEAF_DARK = "#3f8f4a", STEM = "#58a85a";
+function beanFace(k) {
+  const eye = (x) => {
+    if (k === "vui" || k === "an") return `<path d="M${x-6} ${-2} Q${x} ${-10} ${x+6} ${-2}" stroke="${OUT}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+    const r = k === "ngac" ? 6.5 : 5.5;
+    return `<ellipse cx="${x}" cy="-4" rx="${r}" ry="${r + 1}" fill="${OUT}"/><circle cx="${x + 2}" cy="-7" r="2" fill="#fff"/>`;
+  };
+  const brow = k === "buon" ? `<path d="M-30 -16 L-18 -19 M14 -19 L26 -16" stroke="${OUT}" stroke-width="2.5" stroke-linecap="round"/>` : "";
+  const m = k === "vui" ? `<path d="M-10 8 Q-4 18 2 8 Z" fill="#d9536f" stroke="${OUT}" stroke-width="2.5" stroke-linejoin="round"/>`
+    : k === "an" ? `<ellipse cx="-4" cy="12" rx="7" ry="8" fill="#a8324f" stroke="${OUT}" stroke-width="2.5"/>`
+    : k === "ngac" ? `<ellipse cx="-4" cy="11" rx="3.5" ry="4.5" fill="#d9536f" stroke="${OUT}" stroke-width="2.5"/>`
+    : k === "buon" ? `<path d="M-9 14 Q-4 9 1 14" stroke="${OUT}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`
+    : `<path d="M-10 8 Q-7 13 -4 8 Q-1 13 2 8" stroke="${OUT}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+  const tear = k === "buon" ? `<path d="M18 4 q4 7 0 10 q-4 -3 0 -10z" fill="#7cc6f2"/>` : "";
+  return `${eye(-22)}${eye(14)}${brow}<ellipse cx="-34" cy="8" rx="7" ry="4.5" fill="#ff9fb0" opacity=".8"/><ellipse cx="26" cy="8" rx="7" ry="4.5" fill="#ff9fb0" opacity=".8"/>${m}${tear}`;
+}
+function beanBody(k, armsUp) {
+  const arm = armsUp
+    ? `<path d="M-50 4 Q-66 -6 -70 -24" stroke="${OUT}" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="-70" cy="-25" r="3.5" fill="${OUT}"/>
+       <path d="M44 6 Q62 -4 66 -22" stroke="${OUT}" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="66" cy="-23" r="3.5" fill="${OUT}"/>`
+    : `<path d="M-50 8 Q-64 14 -66 28" stroke="${OUT}" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="-66" cy="29" r="3.5" fill="${OUT}"/>
+       <path d="M44 10 Q58 16 60 30" stroke="${OUT}" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="60" cy="31" r="3.5" fill="${OUT}"/>`;
+  return `${arm}
+    <path d="M-20 -50 C18 -58 50 -36 48 -6 C46 12 34 16 34 26 C34 46 12 56 -12 52 C-44 48 -54 18 -52 -8 C-50 -32 -40 -46 -20 -50 Z" fill="${BEAN}" stroke="${OUT}" stroke-width="3.5"/>
+    <path d="M30 22 C30 40 14 48 -6 48 C14 42 24 34 30 22 Z" fill="${BEAN_DARK}" opacity=".7"/>
+    <path d="M38 -2 C34 6 30 10 28 18" stroke="${BEAN_DARK}" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="-30" cy="-32" rx="9" ry="5" fill="#fff" opacity=".8" transform="rotate(-30 -30 -32)"/><circle cx="-16" cy="-40" r="3" fill="#fff" opacity=".8"/>
+    ${beanFace(k)}`;
+}
+const leafShape = (x, y, rot, sc = 1) => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${sc})">
+  <path d="M0 0 C10 -16 38 -18 52 0 C38 18 10 16 0 0 Z" fill="${LEAF}" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M4 0 H44" stroke="${LEAF_DARK}" stroke-width="2" stroke-linecap="round"/></g>`;
+const flowerShape = (x, y, c = "#fff") => `<g transform="translate(${x} ${y})">${[0, 72, 144, 216, 288].map(a =>
+  `<ellipse cx="${Math.cos(a * Math.PI / 180) * 7}" cy="${Math.sin(a * Math.PI / 180) * 7}" rx="6" ry="5" fill="${c}" stroke="${OUT}" stroke-width="2"/>`).join("")}<circle r="4" fill="#ffd34d" stroke="${OUT}" stroke-width="2"/></g>`;
+const podShape = (x, y, rot) => `<g transform="translate(${x} ${y}) rotate(${rot})">
+  <path d="M0 0 C4 10 6 30 0 44 C-2 50 -10 50 -10 42 C-12 28 -8 10 0 0 Z" fill="#8fcf5a" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="-4" cy="14" r="3" fill="#b9e58a"/><circle cx="-4" cy="25" r="3" fill="#b9e58a"/><circle cx="-5" cy="36" r="3" fill="#b9e58a"/></g>`;
+function beanPlant(stage, k) {
+  const soil = `<ellipse cx="110" cy="226" rx="78" ry="16" fill="#9a6a43" stroke="${OUT}" stroke-width="3.5"/>
+    <ellipse cx="110" cy="222" rx="66" ry="9" fill="#b98457"/>
+    ${stage >= 1 ? `<g fill="#7a5233">${[[70, 222], [90, 228], [132, 226], [150, 220], [112, 230]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3"/>`).join("")}</g>` : ""}`;
+  const up = k === "vui" || k === "an";
+  if (stage <= 1) {
+    // Hạt đậu nằm trên đất (giai đoạn 1 có rễ nhỏ và mầm nhú)
+    return `${soil}
+      ${stage === 1 ? `<path d="M100 220 q-6 10 -2 18 M118 222 q6 8 4 16" stroke="#e8c79a" stroke-width="3" fill="none" stroke-linecap="round"/>` : ""}
+      <g transform="translate(110 176)">${beanBody(k, up)}
+        <ellipse cx="-22" cy="54" rx="9" ry="4" fill="#f2a0a0" stroke="${OUT}" stroke-width="2"/><ellipse cx="12" cy="54" rx="9" ry="4" fill="#f2a0a0" stroke="${OUT}" stroke-width="2"/>
+        ${stage === 1 ? `<path d="M-8 -50 C-10 -64 0 -72 8 -66" stroke="${STEM}" stroke-width="4" fill="none" stroke-linecap="round"/>${leafShape(8, -66, -40, .35)}` : ""}
+      </g>`;
+  }
+  // Từ giai đoạn 2: thân mọc từ đất, Bé Đậu được nâng lên đầu thân như lá mầm
+  const headY = [0, 0, 130, 112, 104, 98, 98][stage];
+  const stemTop = headY + 40;
+  let parts = `<path d="M110 222 C104 ${stemTop + 40} 116 ${stemTop + 20} 110 ${stemTop}" stroke="${STEM}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+  if (stage >= 2) parts += leafShape(110, stemTop + 26, 200, .55) + leafShape(110, stemTop + 22, -20, .55);
+  if (stage >= 4) parts += leafShape(110, 196, 205, .8) + leafShape(110, 188, -25, .8);
+  if (stage >= 5) parts += flowerShape(58, 176, "#fff") + flowerShape(166, 168, "#ffc1d6") + flowerShape(44, 150, "#ffc1d6");
+  if (stage >= 6) parts += podShape(70, 180, 20) + podShape(156, 172, -18) + podShape(170, 140, -30);
+  const crown = stage >= 3 ? leafShape(104, headY - 50, -150, .85) + leafShape(116, headY - 50, -30, .85)
+    + `<path d="M110 ${headY - 46} V${headY - 56}" stroke="${STEM}" stroke-width="5" stroke-linecap="round"/>` : "";
+  const sun = stage >= 4 ? `<g stroke="#ffd34d" stroke-width="3" stroke-linecap="round" opacity=".9"><path d="M30 60 l-10 -6 M36 44 l-6 -10 M188 52 l10 -8 M196 70 l12 -2"/></g>` : "";
+  return `${sun}${soil}${parts}${crown}<g transform="translate(110 ${headY}) scale(${stage >= 3 ? .9 : .82})">${beanBody(k, up)}</g>`;
+}
+
+/* ---------------- Ba linh vật ----------------
+   Mỗi linh vật có 6 món đồ (theo thứ tự câu hỏi).
+   slot "body": vẽ lên người; "left"/"right": đặt cạnh linh vật; "sign": biển hiệu. */
+const MASCOTS = {
+  muop: {
+    name: "Mướp", game: "Góc bếp của Mướp", short: "Mướp", place: "bep",
+    blurb: "Chú mèo mướp bị bỏ rơi, được bạn nhận về nuôi ở góc bếp.",
+    comic: [
+      { mood: "buon", place: "mua", front: "box", text: "Meo... Trời mưa to quá. Mình bị bỏ lại trong chiếc hộp giấy bên đường, vừa lạnh vừa đói..." },
+      { mood: "ngac", text: "Ơ? Bạn bế mình về nhà thật hả? Góc bếp này ấm ơi là ấm!" },
+      { mood: "vui", text: "Mỗi câu bạn trả lời, mình được ăn no, được vuốt ve, được có đồ chơi mới. Nuôi mình nha!" },
+    ],
+    formSay: "Rừ rừ... Mướp no bụng, được cưng nựng, có cả góc bếp ấm áp. Cảm ơn bạn đã nhận nuôi Mướp!",
+    doneTitle: "Mướp đã có nhà!",
+    treats: [
+      { name: "Bát cá nục", act: "an", hello: "Meo! Có cá kìa!", say: "Măm măm... cá nục thơm quá!",
+        svg: `<path d="M8 32 h44 l-6 18 h-32 z" fill="#7fb7e6" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M14 28 q14 -14 28 0 q-14 10 -28 0 z" fill="#a9bccd" stroke="${OUT}" stroke-width="2.5"/><path d="M42 28 l9 -7 v14 z" fill="#a9bccd" stroke="${OUT}" stroke-width="2.5" stroke-linejoin="round"/><circle cx="20" cy="26" r="2" fill="${OUT}"/>` },
+      { name: "Được vuốt ve", act: "vuot", hello: "Bạn xoa đầu Mướp kìa!", say: "Rừ rừ... được vuốt ve sướng quá!",
+        svg: `<path d="M30 50 C6 34 8 12 20 12 C26 12 30 18 30 21 C30 18 34 12 40 12 C52 12 54 34 30 50 Z" fill="#ff8fab" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/>` },
+      { name: "Cuộn len", act: "choi", hello: "Ôi đồ chơi mới!", say: "Vờn cuộn len vui quá đi!",
+        svg: `<circle cx="28" cy="30" r="18" fill="#5ab9a8" stroke="${OUT}" stroke-width="3"/><path d="M12 24 q16 6 32 -6 M11 34 q18 4 34 -10 M16 44 q16 -4 26 -24" stroke="#3e8f80" stroke-width="2.5" fill="none"/><path d="M44 38 q10 4 12 12" stroke="#5ab9a8" stroke-width="3" fill="none" stroke-linecap="round"/>` },
+      { name: "Đĩa sữa ấm", act: "an", hello: "Sữa ấm cho Mướp!", say: "Liếm liếm... sữa ấm ngon ghê!",
+        svg: `<ellipse cx="30" cy="38" rx="26" ry="11" fill="#f5b3c2" stroke="${OUT}" stroke-width="3"/><ellipse cx="30" cy="35" rx="19" ry="6" fill="#fffdf7" stroke="${OUT}" stroke-width="2"/><path d="M30 8 q8 10 0 15 q-8 -5 0 -15z" fill="#fffdf7" stroke="${OUT}" stroke-width="2.5"/>` },
+      { name: "Cần câu lông vũ", act: "choi", hello: "Lông vũ bay bay kìa!", say: "Vồ! Vồ! Mướp bắt được rồi!",
+        svg: `<path d="M8 52 L40 14" stroke="#a0612e" stroke-width="4" stroke-linecap="round"/><path d="M40 14 q14 -6 16 -12 q-2 12 -12 20 z" fill="#ff8fab" stroke="${OUT}" stroke-width="2.5" stroke-linejoin="round"/><path d="M40 14 q2 14 -4 20 q10 -4 12 -14z" fill="#b9a2f0" stroke="${OUT}" stroke-width="2.5" stroke-linejoin="round"/>` },
+      { name: "Ổ nệm êm", act: "choi", hello: "Ổ nệm êm cho Mướp!", say: "Rừ rừ... nằm ổ nệm êm hạnh phúc quá!",
+        svg: `<path d="M4 38 q0 -16 26 -16 q26 0 26 16 q0 12 -26 12 q-26 0 -26 -12z" fill="#8fc9b8" stroke="${OUT}" stroke-width="3"/><path d="M12 36 q18 8 36 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="20" cy="30" r="2.5" fill="#fff"/><circle cx="40" cy="30" r="2.5" fill="#fff"/>` },
+    ],
+    draw: (k, it) => {
+      const F = "#f6a54c", S = "#d9772e", C = "#fff4e2";
+      const tail = "M150 214 C198 214 208 166 188 140 C182 132 170 134 173 143";
+      const leg = (x) => `<path d="M${x} 196 v30 q0 9 11 9 q11 0 11 -9 v-30" fill="${F}" stroke="${OUT}" stroke-width="4"/>
+        <ellipse cx="${x + 11}" cy="229" rx="10" ry="6" fill="${C}"/><path d="M${x + 7} 228 v5 M${x + 15} 228 v5" stroke="${OUT}" stroke-width="2" stroke-linecap="round"/>`;
+      return `
+      <path d="${tail}" fill="none" stroke="${OUT}" stroke-width="22" stroke-linecap="round"/>
+      <path d="${tail}" fill="none" stroke="${F}" stroke-width="15" stroke-linecap="round"/>
+      <path d="${tail}" fill="none" stroke="${S}" stroke-width="15" stroke-dasharray="7 11"/>
+      <path d="M66 156 C54 196 58 234 110 234 C162 234 166 196 154 156 Z" fill="${F}" stroke="${OUT}" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M90 168 C82 200 88 228 110 228 C132 228 138 200 130 168 Z" fill="${C}"/>
+      <path d="M63 188 q10 1 15 -6 M62 206 q10 1 15 -6 M157 188 q-10 1 -15 -6 M158 206 q-10 1 -15 -6" stroke="${S}" stroke-width="5" fill="none" stroke-linecap="round"/>
+      ${leg(84)}${leg(114)}
+      <path d="M50 92 L48 32 Q52 25 59 29 L98 56 Z" fill="${F}" stroke="${OUT}" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M170 92 L172 32 Q168 25 161 29 L122 56 Z" fill="${F}" stroke="${OUT}" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M58 76 L57 42 L84 60 Z M162 76 L163 42 L136 60 Z" fill="#ffb3a7"/>
+      <path d="M40 114 C40 64 72 46 110 46 C148 46 180 64 180 114 C180 152 150 172 110 172 C70 172 40 152 40 114 Z" fill="${F}" stroke="${OUT}" stroke-width="4"/>
+      <path d="M96 52 l4 16 M110 49 v18 M124 52 l-4 16" stroke="${S}" stroke-width="5" stroke-linecap="round"/>
+      <path d="M42 104 h13 M44 118 h11 M178 104 h-13 M176 118 h-11" stroke="${S}" stroke-width="5" stroke-linecap="round"/>
+      <ellipse cx="98" cy="138" rx="17" ry="13" fill="${C}"/><ellipse cx="122" cy="138" rx="17" ry="13" fill="${C}"/><ellipse cx="110" cy="148" rx="14" ry="9" fill="${C}"/>
+      ${eyes(k, 80, 140, 110)}${blush(62, 158, 132)}
+      <path d="M103 126 h14 q-7 9 -7 9 q0 0 -7 -9 z" fill="#f08a9b" stroke="${OUT}" stroke-width="2" stroke-linejoin="round"/>${mouth(k, 110, 138)}
+      <path d="M72 132 l-30 -5 M72 140 l-30 4 M148 132 l30 -5 M148 140 l30 4" stroke="${OUT}" stroke-width="2" stroke-linecap="round"/>
+      ${it.has(1) ? `<path d="M74 166 Q110 184 146 166" stroke="${OUT}" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M74 166 Q110 184 146 166" stroke="#e8577a" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="110" cy="182" r="9" fill="#ffd34d" stroke="${OUT}" stroke-width="3"/><path d="M104 184 h12" stroke="${OUT}" stroke-width="2"/>` : ""}`;
+    },
+    items: [
+      { name: "Bát ăn riêng", slot: "left", icon: "catbowl" },
+      { name: "Vòng cổ chuông", slot: "body", icon: "bell" },
+      { name: "Cuộn len", slot: "right", icon: "yarn" },
+      { name: "Đĩa sữa", slot: "left", icon: "milk" },
+      { name: "Cần câu lông vũ", slot: "right", icon: "wand" },
+      { name: "Ổ nệm êm", slot: "left", icon: "cushion" },
+    ],
+  },
+  dau: {
+    name: "Bé Đậu", game: "Vườn của Bé Đậu", short: "Bé Đậu", place: "vuon",
+    blurb: "Hạt đậu nhỏ xíu mơ thành cây đậu sai quả. Mỗi câu trả lời là một lần chăm sóc.",
+    comic: [
+      { mood: "buon", text: "Chào bạn, mình là Bé Đậu, một hạt đậu nhỏ xíu nằm trong đất. Mình mơ được lớn thành cây đậu sai quả..." },
+      { mood: "thuong", text: "Nhưng mình cần người chăm: xới đất, tưới nước, bón phân, sưởi nắng. Bạn chăm mình được không?" },
+      { mood: "vui", text: "Mỗi câu bạn trả lời là một lần chăm sóc, mình sẽ lớn thêm một chút. Cùng làm vườn nào!" },
+    ],
+    formSay: "Mình ra quả rồi nè! Bé Đậu cảm ơn bạn đã chăm sóc mình nhiều lắm!",
+    doneTitle: "Bé Đậu ra quả rồi!",
+    // Giai đoạn lớn = số lần đã chăm sóc (0 → 6)
+    draw: (k, it) => beanPlant(it.size, k),
+    items: [
+      { name: "Cuốc xới đất", slot: "left", icon: "hoe" },
+      { name: "Bình tưới nước", slot: "right", icon: "can2" },
+      { name: "Túi phân bón", slot: "left", icon: "fert" },
+      { name: "Ánh nắng ấm", slot: "body", icon: "star" },
+      { name: "Bông hoa đầu tiên", slot: "body", icon: "flower" },
+      { name: "Quả đậu đầu mùa", slot: "body", icon: "pod" },
+    ],
+  },
+  mat: {
+    name: "Bé Mật", game: "Hũ mật của Bé Mật", short: "Bé Mật", place: "rung", journey: true,
+    blurb: "Chú ong nhỏ bị lạc trong rừng, đang tìm đường về với mẹ.",
+    comic: [
+      { mood: "buon", text: "Vo ve... Mình là Bé Mật. Mải đuổi theo cánh bướm, mình bị lạc vào khu rừng này mất rồi." },
+      { mood: "nho", text: "Mình nhớ mẹ, nhớ cả nhà lắm. Tổ ong nhà mình ở bên kia khu rừng, mà mình không biết đường về." },
+      { mood: "vui", text: "Mỗi câu bạn trả lời, mình được một chỉ dẫn để bay tiếp. Bạn dẫn mình về nhà nha? Bay thôi!" },
+    ],
+    formSay: "Bé Mật ghi lại rồi! Mình sẽ nhờ cả nhà ong cùng giúp bạn nha!",
+    // Về tới nhà, Bé Mật hỏi lại người chơi cần giúp gì. Chọn được nhiều ý, lưu vào cột "Cần Bé Mật hỗ trợ".
+    help: {
+      key: "Cần Bé Mật hỗ trợ",
+      say: "Cảm ơn bạn đã dẫn mình về nhà! Giờ tới lượt Bé Mật giúp bạn nè!",
+      q: "Bạn có cần Bé Mật hỗ trợ gì không? (chọn được nhiều ý)",
+      a: ["Lên kế hoạch marketing cho shop", "Chạy quảng cáo Facebook, TikTok", "Quay dựng video ngắn", "Viết content, chăm sóc fanpage", "Thiết kế logo, hình ảnh thương hiệu", "Làm website bán hàng", "Kèm 1:1 để tự làm marketing"],
+      none: "Chưa cần, mình muốn học thêm trước",
+    },
+    doneTitle: "Bé Mật về tới nhà rồi!",
+    draw: (k) => roundBee(k),
+    items: [
+      { name: "Chiếc lá chỉ đường", slot: "scene", icon: "arrow", mood: "nhay", say: "Chiếc lá chỉ về phía kia kìa!" },
+      { name: "Bạn đom đóm soi đường", slot: "scene", icon: "firefly", mood: "ngac", say: "Bạn đom đóm soi sáng lối đi cho mình!" },
+      { name: "Tấm bản đồ cánh hoa", slot: "scene", icon: "map", mood: "vui", say: "Có bản đồ rồi, mình biết phải bay hướng nào!" },
+      { name: "La bàn giọt sương", slot: "scene", icon: "compass", mood: "cuoi", say: "La bàn chỉ về nhà, bay nhanh nào!" },
+      { name: "Mật ngọt của bông hoa", slot: "scene", icon: "flower", mood: "hon", say: "Bông hoa tặng mình mật ngọt để mang về cho mẹ!" },
+      { name: "Tiếng mẹ gọi", slot: "scene", icon: "heart", mood: "cuoi", say: "Mẹ ơi! Con thấy nhà mình rồi!" },
+    ],
+  },
+};
+
+/* ---------------- Đồ đặt cạnh linh vật (toạ độ sân khấu 360x270) ---------------- */
+const GROUND = {
+  catbowl: `<path d="M12 234 h56 l-7 20 h-42 z" fill="#7fb7e6" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M22 230 q12 -12 24 0 q-12 8 -24 0z" fill="#a9bccd" stroke="${OUT}" stroke-width="2"/><path d="M46 230 l8 -6 v12 z" fill="#a9bccd" stroke="${OUT}" stroke-width="2"/><text x="40" y="250" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="10" fill="#fff">MƯỚP</text>`,
+  milk: `<ellipse cx="96" cy="256" rx="24" ry="8" fill="#f5b3c2" stroke="${OUT}" stroke-width="3"/><ellipse cx="96" cy="254" rx="17" ry="4.5" fill="#fffdf7"/>`,
+  yarn: `<circle cx="300" cy="244" r="16" fill="#5ab9a8" stroke="${OUT}" stroke-width="3"/><path d="M286 238 q14 6 28 -6 M285 248 q16 4 30 -10 M290 257 q14 -4 22 -22" stroke="#3e8f80" stroke-width="2.5" fill="none"/><path d="M314 252 q14 10 28 4" stroke="#5ab9a8" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  wand: `<path d="M326 262 L350 186" stroke="#a0612e" stroke-width="4" stroke-linecap="round"/><path d="M350 186 q-10 -14 -4 -22 q8 10 4 22z" fill="#ff8fab" stroke="${OUT}" stroke-width="2.5"/><path d="M350 186 q10 -12 4 -22 q-8 10 -4 22z" fill="#b9a2f0" stroke="${OUT}" stroke-width="2.5"/>`,
+  cushion: `<ellipse cx="180" cy="258" rx="98" ry="14" fill="#8fc9b8" stroke="${OUT}" stroke-width="3"/><path d="M100 256 q80 12 160 0" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="2 10" stroke-linecap="round"/>`,
+  bowl: `<path d="M14 236 h58 l-8 16 h-42 z" fill="#5a7bd8" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><circle cx="30" cy="232" r="5" fill="#a0612e"/><circle cx="42" cy="229" r="5" fill="#b8733a"/><circle cx="54" cy="232" r="5" fill="#a0612e"/>`,
+  can: `<path d="M20 222 h36 v28 h-36 z" fill="#5ab9a8" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M56 230 l18 -12 l3 5 l-17 13" fill="#5ab9a8" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M26 222 q12 -14 24 0" fill="none" stroke="${OUT}" stroke-width="3"/>`,
+  jar: `<path d="M20 226 q-4 26 8 26 h28 q12 0 8 -26 z" fill="#f2a31b" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><rect x="22" y="214" width="40" height="12" rx="4" fill="#c98b5b" stroke="${OUT}" stroke-width="3"/><text x="42" y="243" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="12" fill="#fff">MẬT</text>`,
+  seed: `<path d="M296 220 h44 l4 32 h-52 z" fill="#d9b68a" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M296 220 l6 -8 h32 l6 8" fill="#c49a68" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><circle cx="318" cy="236" r="7" fill="#7cc576" stroke="${OUT}" stroke-width="2"/>`,
+  hoe: `<path d="M30 252 L52 188" stroke="#a0612e" stroke-width="5" stroke-linecap="round"/><path d="M44 186 l18 2 l-4 14 l-16 -6 z" fill="#9aa7b4" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/>`,
+  can2: `<path d="M292 222 h36 v28 h-36 z" fill="#5ab9a8" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M328 230 l18 -12 l3 5 l-17 13" fill="#5ab9a8" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M298 222 q12 -14 24 0" fill="none" stroke="${OUT}" stroke-width="3"/>`,
+  fert: `<path d="M58 226 h40 l4 28 h-48 z" fill="#d9b68a" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M58 226 l6 -8 h28 l6 8" fill="#c49a68" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><text x="78" y="246" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="11" fill="#5c3d22">PHÂN</text>`,
+  basket: `<path d="M294 230 h50 l-6 22 h-38 z" fill="#c98b5b" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M300 230 q19 -26 38 0" fill="none" stroke="${OUT}" stroke-width="3"/><circle cx="306" cy="226" r="7" fill="#ff8fab" stroke="${OUT}" stroke-width="2"/><circle cx="320" cy="222" r="7" fill="#fff" stroke="${OUT}" stroke-width="2"/><circle cx="334" cy="226" r="7" fill="#ff8fab" stroke="${OUT}" stroke-width="2"/>`,
+};
+
+/* ---------------- Bánh ---------------- */
+const CAKES = {
+  cupcake: { name: "Bánh cupcake", svg: `<path d="M10 30 h40 l-6 22 h-28 z" fill="#8fd3c7" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M8 32 q0 -18 22 -20 q22 2 22 20 z" fill="#ffc1d0" stroke="${OUT}" stroke-width="3"/><circle cx="30" cy="10" r="6" fill="#e8314f" stroke="${OUT}" stroke-width="2.5"/>` },
+  donut:   { name: "Bánh donut", svg: `<ellipse cx="30" cy="36" rx="26" ry="18" fill="#e3a35d" stroke="${OUT}" stroke-width="3"/><path d="M6 32 q24 -22 48 0 q-4 10 -24 10 q-20 0 -24 -10z" fill="#ff8fab" stroke="${OUT}" stroke-width="3"/><ellipse cx="30" cy="34" rx="8" ry="4" fill="#fff8e7" stroke="${OUT}" stroke-width="2.5"/><path d="M16 28 l4 -2 M40 26 l4 2 M24 40 l3 1 M38 38 l3 -1" stroke="#5ab9a8" stroke-width="3" stroke-linecap="round"/>` },
+  dau:     { name: "Bánh kem dâu", svg: `<path d="M6 30 L54 22 L54 50 L6 50 Z" fill="#fff4d6" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M6 40 L54 36" stroke="#ff8fab" stroke-width="5"/><path d="M6 30 L54 22" stroke="#ffc1d0" stroke-width="6" stroke-linecap="round"/><path d="M40 20 q-8 -10 0 -14 q8 4 0 14z" fill="#e8314f" stroke="${OUT}" stroke-width="2.5"/>` },
+  macaron: { name: "Bánh macaron", svg: `<ellipse cx="30" cy="22" rx="24" ry="11" fill="#b9a2f0" stroke="${OUT}" stroke-width="3"/><rect x="8" y="27" width="44" height="7" rx="3" fill="#fff4d6" stroke="${OUT}" stroke-width="2.5"/><ellipse cx="30" cy="40" rx="24" ry="11" fill="#b9a2f0" stroke="${OUT}" stroke-width="3"/>` },
+  flan:    { name: "Bánh flan", svg: `<path d="M12 24 h36 l6 26 h-48 z" fill="#ffd77a" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><path d="M12 24 h36 l2 8 q-20 6 -40 0 z" fill="#a8622c" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/>` },
+  nen:     { name: "Bánh kem nến", svg: `<rect x="6" y="28" width="48" height="22" rx="6" fill="#fff4d6" stroke="${OUT}" stroke-width="3"/><path d="M6 34 q8 6 16 0 q8 6 16 0 q8 6 16 0" fill="none" stroke="#ff8fab" stroke-width="4"/><rect x="27" y="12" width="6" height="16" fill="#5ab9a8" stroke="${OUT}" stroke-width="2"/><path d="M30 2 q5 6 0 10 q-5 -4 0 -10z" fill="#f2a31b"/>` },
+};
+
+function cakeSVG(type, bites = 0) { return biteSVG(CAKES[type].svg, bites); }
+function biteSVG(svg, bites = 0, plate = true) {
+  // Mỗi miếng cắn = một vết tròn khoét vào bánh
+  const holes = [[54, 20, 12], [8, 18, 13], [30, 44, 16]].slice(0, bites)
+    .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#000"/>`).join("");
+  return `<mask id="bite"><rect x="-10" y="-10" width="80" height="80" fill="#fff"/>${holes}</mask>
+    ${plate ? `<ellipse cx="30" cy="52" rx="32" ry="7" fill="#fff" stroke="${OUT}" stroke-width="3"/>` : ""}
+    <g mask="url(#bite)">${svg}</g>`;
+}
+
+const ICONS = {
+  bowl: GROUND.bowl.replace(/(\d+(\.\d+)?)/g, (n) => n), // dùng lại hình bát, thu nhỏ bằng viewBox
+};
+function itemIcon(item) {
+  const vb = { catbowl: "8 220 64 38", milk: "70 244 52 22", yarn: "282 224 64 38", wand: "320 160 40 106", cushion: "80 242 200 32", bowl: "8 220 70 36", can: "14 208 66 46", jar: "14 210 56 46", seed: "288 208 60 48", basket: "288 212 60 44", hoe: "22 180 46 76", can2: "286 208 66 46", fert: "50 212 58 46" };
+  if (GROUND[item.icon]) return `<svg viewBox="${vb[item.icon]}">${GROUND[item.icon]}</svg>`;
+  const small = {
+    scarf: `<path d="M4 14 Q20 26 36 14 L35 22 Q20 34 5 22 Z" fill="#e8577a" stroke="${OUT}" stroke-width="2.5"/>`,
+    bell: `<circle cx="20" cy="20" r="11" fill="#ffd34d" stroke="${OUT}" stroke-width="2.5"/><path d="M12 22 h16" stroke="${OUT}" stroke-width="2"/>`,
+    bow: `<path d="M20 20 L6 12 L6 28 Z M20 20 L34 12 L34 28 Z" fill="#e8577a" stroke="${OUT}" stroke-width="2.5" stroke-linejoin="round"/><circle cx="20" cy="20" r="4.5" fill="#c94a62"/>`,
+    shoe: `<path d="M5 26 q0 -10 10 -10 l4 6 q10 0 14 6 v4 h-28 z" fill="#5ab9a8" stroke="${OUT}" stroke-width="2.5"/>`,
+    sign: `<rect x="4" y="12" width="32" height="16" rx="4" fill="#2b2a3a"/><path d="M9 20 h22" stroke="#f2c14e" stroke-width="3"/>`,
+    leaf: `<path d="M6 30 C10 10 30 6 34 8 C34 24 20 34 6 30 Z" fill="#9bd68f" stroke="${OUT}" stroke-width="2.5"/>`,
+    bib: `<path d="M8 10 Q20 6 32 10 Q31 32 20 34 Q9 32 8 10 Z" fill="#7cc576" stroke="${OUT}" stroke-width="2.5"/>`,
+    boot: `<path d="M10 6 h14 v18 h8 q4 0 4 4 v6 h-26 z" fill="#e8577a" stroke="${OUT}" stroke-width="2.5" stroke-linejoin="round"/>`,
+    flower: `<g transform="translate(20 20)">${[0, 72, 144, 216, 288].map(a => `<circle cx="${Math.cos(a * Math.PI / 180) * 8}" cy="${Math.sin(a * Math.PI / 180) * 8}" r="7" fill="#ff8fab" stroke="${OUT}" stroke-width="2"/>`).join("")}<circle r="5.5" fill="#ffd34d" stroke="${OUT}" stroke-width="2"/></g>`,
+    pod: `<path d="M22 4 C26 14 28 28 22 36 C20 40 12 40 12 34 C10 22 14 12 22 4 Z" fill="#8fcf5a" stroke="${OUT}" stroke-width="2.5"/>`,
+    arrow: `<path d="M6 30 C10 12 26 6 34 6 C34 20 24 32 6 30 Z" fill="#9bd68f" stroke="${OUT}" stroke-width="2.5"/><path d="M12 26 L28 12 M28 12 h-8 M28 12 v8" stroke="${OUT}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+    firefly: `<circle cx="20" cy="24" r="12" fill="#fff6a8" opacity=".6"/><ellipse cx="14" cy="14" rx="7" ry="5" fill="#cfe8ff" stroke="${OUT}" stroke-width="2"/><ellipse cx="26" cy="14" rx="7" ry="5" fill="#cfe8ff" stroke="${OUT}" stroke-width="2"/><circle cx="20" cy="24" r="7" fill="#ffe14d" stroke="${OUT}" stroke-width="2.5"/>`,
+    map: `<path d="M5 9 l10 -3 10 3 10 -3 v25 l-10 3 -10 -3 -10 3 z" fill="#fff3d6" stroke="${OUT}" stroke-width="2.5" stroke-linejoin="round"/><path d="M10 26 q6 -10 12 -4 t10 -10" stroke="#e8577a" stroke-width="2.5" fill="none" stroke-dasharray="3 3"/><circle cx="31" cy="12" r="3" fill="#f2a31b"/>`,
+    compass: `<circle cx="20" cy="20" r="15" fill="#dff3ff" stroke="${OUT}" stroke-width="2.5"/><path d="M20 8 L25 20 L20 32 L15 20 Z" fill="#e8577a" stroke="${OUT}" stroke-width="2"/><path d="M20 20 L25 20 L20 32 L15 20 Z" fill="#fff"/><circle cx="20" cy="20" r="2.5" fill="${OUT}"/>`,
+    heart: `<path d="M20 34 C6 24 4 16 8 11 C12 6 18 8 20 13 C22 8 28 6 32 11 C36 16 34 24 20 34 Z" fill="#ff8fab" stroke="${OUT}" stroke-width="2.5"/>`,
+    star: `<path d="M20 3 l4 12 12 5 -12 5 -4 12 -4 -12 -12 -5 12 -5z" fill="#ffd34d" stroke="${OUT}" stroke-width="2.5" stroke-linejoin="round"/>`,
+  };
+  return `<svg viewBox="0 0 40 40">${small[item.icon]}</svg>`;
+}
+
+/* ---------------- Phông nền ---------------- */
+function backdrop(place, signOn, step = 0) {
+  if (place === "rung") return forestScene(step);
+  if (place === "bep") {
+    const planks = [0, 1, 2, 3, 4, 5].map(i => `<path d="M${i * 64 + 20} 214 V270" stroke="#c48a52" stroke-width="2"/>`).join("");
+    const doors = [8, 76, 144, 212, 280].map(x => `<rect x="${x}" y="164" width="62" height="48" rx="4" fill="#b97a45" stroke="#8f5a30" stroke-width="2"/><circle cx="${x + 31}" cy="174" r="2.5" fill="#f2d39b"/>`).join("");
+    const check = Array.from({ length: 12 }, (_, i) => `<rect x="${236 + i * 9}" y="${i % 2 ? 40 : 46}" width="9" height="6" fill="#fff" opacity=".85"/>`).join("");
+    return `<rect width="360" height="270" fill="#fbe9d2"/>
+      <rect y="112" width="360" height="44" fill="#f4dcc0"/>${Array.from({ length: 13 }, (_, i) => `<path d="M${i * 30} 112 V156" stroke="#ead0b1" stroke-width="2"/>`).join("")}
+      <rect x="0" y="0" width="150" height="70" fill="#c48a52"/><rect x="8" y="6" width="64" height="56" rx="4" fill="#d39a62" stroke="#8f5a30" stroke-width="2"/><rect x="78" y="6" width="64" height="56" rx="4" fill="#d39a62" stroke="#8f5a30" stroke-width="2"/>
+      <path d="M20 84 H130" stroke="#8f5a30" stroke-width="3"/>
+      <g stroke="${OUT}" stroke-width="2"><path d="M40 84 v10"/><circle cx="40" cy="104" r="10" fill="#4a4a5a"/><path d="M70 84 v12"/><path d="M64 96 h12 v18 h-12 z" fill="#e8577a"/><path d="M100 84 v10"/><ellipse cx="100" cy="106" rx="7" ry="12" fill="#9aa7b4"/></g>
+      <rect x="230" y="30" width="112" height="84" rx="4" fill="#fff" stroke="#8f5a30" stroke-width="4"/>
+      <rect x="236" y="36" width="100" height="72" fill="#bfe6ff"/><path d="M236 92 Q270 74 300 86 T336 80 V108 H236 Z" fill="#a8dd9a"/><path d="M286 36 V108 M236 72 H336" stroke="#fff" stroke-width="4"/>
+      <path d="M226 28 H346 V50 Q336 58 326 50 Q316 58 306 50 Q296 58 286 50 Q276 58 266 50 Q256 58 246 50 Q236 58 226 50 Z" fill="#e8534f"/>${check}
+      <path d="M180 0 V18" stroke="${OUT}" stroke-width="2"/><path d="M164 30 q16 -18 32 0 z" fill="#3b4a5a"/><ellipse cx="180" cy="31" rx="6" ry="3" fill="#ffe6a3"/>
+      <rect y="150" width="360" height="10" fill="#efe3d1" stroke="#c9b08d" stroke-width="2"/><rect y="160" width="360" height="54" fill="#c48a52"/>${doors}
+      <g transform="translate(20 128)"><path d="M0 22 h22 l-3 -18 h-16 z" fill="#e3a35d" stroke="${OUT}" stroke-width="2"/><path d="M11 4 q-12 -12 -4 -20 q4 8 4 20 q2 -16 12 -18 q2 12 -12 18" fill="#6cc06a" stroke="${OUT}" stroke-width="2"/></g>
+      <g transform="translate(318 132)"><path d="M0 18 h22 v-16 h-22 z" fill="#e8534f" stroke="${OUT}" stroke-width="2"/><path d="M-1 2 h24" stroke="${OUT}" stroke-width="2"/><circle cx="7" cy="-2" r="4" fill="#e8314f"/><circle cx="15" cy="-3" r="4" fill="#ff6b6b"/></g>
+      <rect y="214" width="360" height="56" fill="#e0a86e"/>${planks}<path d="M0 214 H360" stroke="#b97a45" stroke-width="3"/>
+      <rect x="96" y="236" width="168" height="30" rx="4" fill="#e8534f" opacity=".85"/><rect x="102" y="241" width="156" height="20" rx="3" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="4 6"/>`;
+  }
+  if (place === "mua") {
+    const rain = Array.from({ length: 40 }, (_, i) => { const x = (i * 53) % 370, y = (i * 37) % 250; return `<path d="M${x} ${y} l-6 14" stroke="#d6e4f0" stroke-width="2" stroke-linecap="round" opacity=".8"/>`; }).join("");
+    return `<rect width="360" height="270" fill="#7b8ea6"/><g fill="#9aabbf"><ellipse cx="70" cy="30" rx="60" ry="22"/><ellipse cx="280" cy="24" rx="70" ry="24"/></g>
+      <rect y="170" width="360" height="100" fill="#8a8f98"/><path d="M0 170 H360" stroke="#6b707a" stroke-width="4"/>
+      <ellipse cx="60" cy="246" rx="40" ry="7" fill="#a7b8cc"/><ellipse cx="310" cy="232" rx="34" ry="6" fill="#a7b8cc"/>${rain}`;
+  }
+  if (place === "tiem") {
+    const stripes = Array.from({ length: 8 }, (_, i) => {
+      const c = i % 2 ? "#ffffff" : "#5ab9a8";
+      return `<rect x="${i * 45}" y="0" width="45" height="28" fill="${c}"/><path d="M${i * 45} 28 a22.5 13 0 0 0 45 0 z" fill="${c}"/>`;
+    }).join("");
+    return `<rect width="360" height="270" fill="#fdf1e4"/><rect y="226" width="360" height="44" fill="#e9d3bb"/>${stripes}
+      <rect x="252" y="84" width="96" height="142" rx="8" fill="#c98b5b"/><rect x="264" y="96" width="72" height="58" rx="6" fill="#bfe6f0"/>
+      ${signOn ? `<rect x="96" y="44" width="168" height="40" rx="12" fill="#2b2a3a"/><text x="180" y="71" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="22" fill="#f2c14e">TIỆM MƯỚP</text>`
+               : `<rect x="110" y="48" width="140" height="32" rx="10" fill="none" stroke="#c98b5b" stroke-width="3" stroke-dasharray="6 6" opacity=".6"/><text x="180" y="70" text-anchor="middle" font-family="Be Vietnam Pro, sans-serif" font-size="14" fill="#a26a40" opacity=".7">sắp khai trương</text>`}`;
+  }
+  if (place === "vuon") return `
+      <defs><linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset="1" stop-color="#eef9ff"/></linearGradient></defs>
+      <rect width="360" height="270" fill="url(#skyg)"/>
+      <g opacity=".95"><circle cx="300" cy="44" r="30" fill="#fff3b0"/><circle cx="300" cy="44" r="22" fill="#ffd34d"/></g>
+      <g fill="#fff"><ellipse cx="70" cy="44" rx="30" ry="12"/><ellipse cx="92" cy="36" rx="20" ry="13"/><ellipse cx="200" cy="66" rx="24" ry="9"/><ellipse cx="216" cy="60" rx="15" ry="10"/></g>
+      <path d="M0 160 Q70 112 150 150 T300 136 T360 140 V270 H0 Z" fill="#cdeec0"/>
+      <path d="M0 182 Q90 146 190 178 T360 168 V270 H0 Z" fill="#a8dd9a"/>
+      ${[16, 46, 76, 284, 314, 344].map(x => `<rect x="${x - 5}" y="168" width="10" height="46" rx="4" fill="#fff" stroke="#d9cdb8" stroke-width="2"/>`).join("")}
+      <path d="M0 182 H96 M264 180 H360" stroke="#fff" stroke-width="5"/><path d="M0 200 H96 M264 198 H360" stroke="#fff" stroke-width="5"/>
+      <rect y="214" width="360" height="56" fill="#8fcf7f"/>
+      <path d="M0 214 Q30 208 60 214 T120 214 T180 214 T240 214 T300 214 T360 214" fill="none" stroke="#7bbf6b" stroke-width="3"/>
+      ${[[24, 232], [334, 238], [300, 258], [40, 262]].map(([x, y]) => `<path d="M${x} ${y} v-10" stroke="#4f9d5b" stroke-width="2.5"/><circle cx="${x}" cy="${y - 12}" r="5" fill="#ffc1d6"/><circle cx="${x}" cy="${y - 12}" r="2" fill="#ffd34d"/>`).join("")}
+      <g transform="translate(250 96)"><path d="M0 0 q-10 -12 -16 -2 q6 10 16 2 q10 -12 16 -2 q-6 10 -16 2" fill="#ffb3c7" stroke="${OUT}" stroke-width="2"/><path d="M0 -4 v8" stroke="${OUT}" stroke-width="2"/></g>`;
+  return `<rect width="360" height="270" fill="#fff0f5"/><circle cx="50" cy="44" r="22" fill="#ffd34d"/>
+      <rect y="226" width="360" height="44" fill="#b8e3a8"/>
+      ${[[20, 214], [70, 222], [290, 212], [336, 220], [250, 228]].map(([x, y]) => `<path d="M${x} ${y + 20} v-20" stroke="#4f9d5b" stroke-width="3"/><circle cx="${x}" cy="${y}" r="8" fill="#ff8fab"/><circle cx="${x}" cy="${y}" r="3" fill="#ffd34d"/>`).join("")}
+      <path d="M300 10 v16" stroke="#8a6a44" stroke-width="3"/><path d="M286 26 h28 l6 14 l-6 14 h-28 l-6 -14 z" fill="#f2a31b" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/><circle cx="300" cy="44" r="4" fill="${OUT}"/>`;
+}
+
+// Đường bay của Bé Mật: 6 chặng, mỗi câu trả lời thắp sáng 1 chặng
+const BEE_PATH = [[34, 240], [92, 226], [148, 238], [204, 224], [258, 236], [306, 222]];
+function miniBee(x, y, s, flip = false, bow = false) {
+  // Mẹ và các em của Bé Mật: cùng kiểu ong bông xù, thu nhỏ
+  return `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})"><g transform="scale(.26) translate(-110 -138)">${roundBee("cuoi")}</g>
+    ${bow ? `<path d="M2 -24 l-9 -7 v14 z M2 -24 l9 -7 v14 z" fill="#e8577a" stroke="${OUT}" stroke-width="2"/><circle cx="2" cy="-24" r="3" fill="#c94a62"/>` : ""}</g>`;
+}
+function forestScene(step) {
+  // Rừng hoạt hình xanh tươi: trời xanh, rặng thông, cây tán tròn, đá, nấm phát sáng, đường đất uốn lượn.
+  // Lúc đầu sương mù dày (Bé Mật bị lạc), mỗi chặng sương tan bớt.
+  const t = Math.min(step, 6) / 6;
+  const pine = (x, y, h, c) => `<path d="M${x} ${y - h} L${x - h * .32} ${y - h * .45} H${x - h * .16} L${x - h * .4} ${y} H${x + h * .4} L${x + h * .16} ${y - h * .45} H${x + h * .32} Z" fill="${c}"/>`;
+  const tree = (x, y, sc, c, c2) => `<g transform="translate(${x} ${y}) scale(${sc})"><path d="M-8 70 Q-4 30 -6 0 h12 Q4 30 10 70 Z" fill="#9a5b34" stroke="#6e3f22" stroke-width="2"/><circle cx="0" cy="-14" r="34" fill="${c}"/><circle cx="-26" cy="4" r="24" fill="${c}"/><circle cx="26" cy="4" r="24" fill="${c}"/><circle cx="-8" cy="-26" r="16" fill="${c2}"/><circle cx="18" cy="-12" r="12" fill="${c2}"/></g>`;
+  const rock = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-20 0 Q-22 -16 -6 -20 Q10 -24 18 -10 Q24 0 20 0 Z" fill="#b7aaa0" stroke="#7d6f66" stroke-width="2"/><path d="M-10 -14 q6 -4 12 -2" stroke="#d8cec6" stroke-width="3" fill="none" stroke-linecap="round"/></g>`;
+  const shroom = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><circle cx="0" cy="-16" r="18" fill="#ffd9a8" opacity=".45"/><rect x="-4" y="-14" width="8" height="14" rx="3" fill="#fff3e0"/><path d="M-14 -12 Q0 -30 14 -12 Z" fill="#f2786b" stroke="${OUT}" stroke-width="1.5"/><circle cx="-5" cy="-17" r="2" fill="#fff"/><circle cx="5" cy="-15" r="1.6" fill="#fff"/></g>`;
+  const lit = BEE_PATH.slice(0, step).map(([x, y], i) => `<g class="anim popin"><circle cx="${x}" cy="${y}" r="15" fill="#fff6a8" opacity=".7"/><g transform="translate(${x - 12} ${y - 12}) scale(.6)">${itemIcon(MASCOTS.mat.items[i]).replace(/^<svg viewBox="0 0 40 40">|<\/svg>$/g, "")}</g></g>`).join("");
+  const dots = BEE_PATH.slice(step).map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="#fff" opacity=".6"/>`).join("");
+  const flower = step >= 5 ? `<g class="anim popin" transform="translate(52 150)">
+      <path d="M0 0 v70" stroke="#4f9d5b" stroke-width="5"/><path d="M0 40 q-18 -4 -22 -18 q16 0 22 14" fill="#7cc576" stroke="${OUT}" stroke-width="2"/>
+      ${[0, 60, 120, 180, 240, 300].map(a => `<ellipse cx="${Math.cos(a * Math.PI / 180) * 16}" cy="${Math.sin(a * Math.PI / 180) * 16}" rx="13" ry="8" transform="rotate(${a} ${Math.cos(a * Math.PI / 180) * 16} ${Math.sin(a * Math.PI / 180) * 16})" fill="#fff" stroke="${OUT}" stroke-width="2"/>`).join("")}
+      <circle r="10" fill="#f2a31b" stroke="${OUT}" stroke-width="2"/><path d="M8 14 q4 8 0 12 q-4 -4 0 -12" fill="#f2a31b" stroke="${OUT}" stroke-width="1.5"/></g>` : "";
+  const home = `<g opacity="${step >= 6 ? 1 : .35 + t * .4}">
+      <path d="M262 18 Q310 6 360 14" stroke="#7a4a2a" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M314 12 v10" stroke="#7a4a2a" stroke-width="4"/>
+      ${[[314, 34, 22], [314, 52, 28], [314, 72, 32], [314, 92, 28], [314, 108, 20]].map(([x, y, rx]) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="11" fill="#f2b73a" stroke="${OUT}" stroke-width="2.5"/>`).join("")}
+      <ellipse cx="314" cy="80" rx="8" ry="6" fill="${OUT}"/></g>`;
+  const family = step >= 6 ? `<g class="anim popin">${miniBee(266, 74, 1.15, true, true)}${miniBee(342, 136, .75, true)}${miniBee(286, 128, .7)}</g>` : "";
+  const sparks = [[40, 120], [130, 70], [210, 150], [300, 170], [170, 110], [80, 190], [250, 60]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2" fill="#fff6a8"/>`).join("");
+  return `<defs><linearGradient id="skyf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3fa3d8"/><stop offset="1" stop-color="#bfe9f5"/></linearGradient></defs>
+    <rect width="360" height="270" fill="url(#skyf)"/>
+    <g fill="#fff"><ellipse cx="60" cy="40" rx="34" ry="13"/><ellipse cx="84" cy="32" rx="22" ry="14"/><ellipse cx="220" cy="28" rx="26" ry="10"/><ellipse cx="238" cy="22" rx="16" ry="10"/></g>
+    <g>${[[20, 175, 90], [58, 168, 110], [150, 170, 96], [196, 166, 118], [244, 172, 92], [286, 170, 104]].map(([x, y, h], i) => pine(x, y, h, i % 2 ? "#2f7d4f" : "#3b9160")).join("")}</g>
+    <rect y="160" width="360" height="110" fill="#8fd16f"/>
+    <path d="M0 170 Q60 158 120 168 T240 164 T360 168 V180 H0 Z" fill="#7cc35e"/>
+    ${tree(30, 132, 1.15, "#5fae3e", "#8fd05a")}${tree(118, 120, .8, "#6cbd47", "#9ddc68")}${tree(330, 138, 1.25, "#5fae3e", "#8fd05a")}
+    <path d="M10 246 C60 218 100 246 150 238 S230 214 280 236 S330 222 352 216" stroke="#e2b77c" stroke-width="22" fill="none" stroke-linecap="round"/>
+    <path d="M10 246 C60 218 100 246 150 238 S230 214 280 236 S330 222 352 216" stroke="#efcf9a" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="2 18"/>
+    ${rock(96, 204, 1)}${rock(232, 206, .8)}${rock(170, 266, 1.2)}
+    ${shroom(14, 214, 1.1)}${shroom(212, 200, .8)}${shroom(286, 262, 1)}
+    ${step >= 4 ? [[124, 212], [196, 256], [256, 206], [340, 252], [66, 258]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="#ffc1d6"/><circle cx="${x}" cy="${y}" r="2" fill="#ffd34d"/>`).join("") : ""}
+    ${sparks}
+    <rect width="360" height="270" fill="#e8f1f4" opacity="${(1 - t) * .55}"/>
+    ${dots}${lit}${flower}${home}${family}`;
+}
+
+/* ---------------- Sân khấu ---------------- */
+const state = { mascot: null, items: new Set(), answers: [], startedAt: 0, comic: 0, q: 0, eaten: 0 };
+
+const beePos = (n) => `transform: translate(${6 + Math.min(n, 6) * 18}px, ${54 - Math.min(n, 6) * 4}px) scale(.6)`;
+const FRONT = {
+  box: `<path d="M86 196 h188 v74 h-188 z" fill="#c98b5b" stroke="${OUT}" stroke-width="4" stroke-linejoin="round"/><path d="M86 196 l-26 -26 h44 l14 26 z M274 196 l26 -26 h-44 l-14 26 z" fill="#b5784a" stroke="${OUT}" stroke-width="4" stroke-linejoin="round"/><text x="180" y="240" text-anchor="middle" font-family="Be Vietnam Pro, sans-serif" font-weight="700" font-size="15" fill="#7a4a26">MÈO CON</text>${Array.from({ length: 14 }, (_, i) => `<path d="M${(i * 71) % 360} ${(i * 29) % 260} l-6 14" stroke="#d6e4f0" stroke-width="2" stroke-linecap="round"/>`).join("")}`,
+};
+function stageSVG(m, { mood = "thuong", items = new Set(), party = false, step, place, front } = {}) {
+  const ground = m.items.map((it, i) => items.has(i) && (it.slot === "left" || it.slot === "right") ? `<g class="anim popin">${GROUND[it.icon]}</g>` : "").join("");
+  const signOn = m.items.some((it, i) => it.slot === "sign" && items.has(i));
+  return `<svg viewBox="0 0 360 270" role="img" aria-label="${m.name}">
+    <g id="bg">${backdrop(place || m.place, signOn, step ?? items.size)}</g>
+    ${party ? `<g><path d="M60 110 q10 -20 20 0 M290 120 q8 -14 16 0" stroke="#e8577a" stroke-width="4" fill="none"/><circle cx="40" cy="140" r="6" fill="#f2c14e"/><circle cx="320" cy="90" r="5" fill="#5ab9a8"/><circle cx="76" cy="70" r="4" fill="#e8577a"/></g>` : ""}
+    <g id="ground">${ground}</g>
+    ${m.journey ? `<g id="mpos" style="transform-box: view-box; transform-origin: 0 0; transition: transform 1s ease-in-out; ${beePos(step ?? items.size)}">` : `<g transform="translate(57 2) scale(1.12)">`}<g id="mascot" class="anim">${m.draw(mood, items)}</g></g>
+    <g transform="translate(150 206)"><g id="cake" class="anim"></g></g>
+    ${front ? FRONT[front] : ""}
+    <g id="fx"></g>
+  </svg>`;
+}
+
+function renderStage(opts) { $("#stage").innerHTML = stageSVG(state.mascot, opts); }
+function setMood(mood) { $("#mascot").innerHTML = state.mascot.draw(mood, state.items); }
+function replay(el, cls) { el.classList.remove(cls); void el.getBBox(); el.classList.add(cls); }
+
+/* ---------------- Website ---------------- */
+document.querySelectorAll("[data-brand]").forEach((el) => (el.textContent = CONFIG.brandName));
+document.querySelectorAll("[data-contact]").forEach((el) => (el.textContent = CONFIG.contact));
+document.querySelectorAll("[data-policy]").forEach((el) => (el.href = CONFIG.policyUrl));
+const rewards = (m) => (m && m.treats) || CONFIG.cakes.map((c) => ({ ...CAKES[c], act: "an" }));
+$("#cakes").innerHTML = CONFIG.cakes.map((c) => `<svg viewBox="-4 -4 68 64">${CAKES[c].svg}</svg>`).join("");
+
+(function heroArt() {
+  const ids = Object.keys(MASCOTS);
+  const all = (m) => new Set(m.items.map((_, i) => i));
+  const pos = [[-6, 40, .98], [388, 40, .98], [160, -26, 1.24]]; // trái, phải, giữa (vẽ sau cùng, nổi lên trước)
+  const order = [ids[0], ids[2], ids[1]];
+  $("#hero-art").innerHTML = `<svg viewBox="0 -30 600 330">
+    <ellipse cx="300" cy="292" rx="290" ry="26" fill="#ffffff" opacity=".35"/>
+    ${order.map((id, i) => `<g transform="translate(${pos[i][0]} ${pos[i][1]}) scale(${pos[i][2]})">${MASCOTS[id].draw("vui", all(MASCOTS[id]))}</g>`).join("")}
+    <g transform="translate(40 250) scale(.8)">${CAKES.cupcake.svg}</g>
+    <g transform="translate(510 250) scale(.8)">${CAKES.donut.svg}</g>
+  </svg>`;
+})();
+
+function view(id) {
+  document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
+  $(id).classList.add("active");
+  $("#stage").hidden = id === "#v-pick" || id === "#v-start";
+  $("#game").scrollTop = 0;
+}
+function setHud(m) {
+  $("#cakes").innerHTML = m && m.journey ? m.items.map((it) => itemIcon(it).replace("<svg ", '<svg viewBox="0 0 40 40" ').replace(/viewBox="0 0 40 40" viewBox="0 0 40 40"/, 'viewBox="0 0 40 40"')).join("")
+    : rewards(m).map((r) => `<svg viewBox="-4 -4 68 64">${r.svg}</svg>`).join("");
+}
+function updateCakes() { [...$("#cakes").children].forEach((c, i) => c.classList.toggle("on", i < state.eaten)); }
+
+function store(key, val) {
+  try {
+    if (val !== undefined) localStorage.setItem(key, JSON.stringify(val));
+    return JSON.parse(localStorage.getItem(key));
+  } catch { return null; }
+}
+
+function openGame() {
+  $("#game").hidden = false;
+  document.body.style.overflow = "hidden";
+  const prev = store("chibi_result");
+  if (prev && MASCOTS[prev.mascot]) return showDone(prev);
+  state.isReplay = false;
+  Object.assign(state, { mascot: null, items: new Set(), answers: [], startedAt: Date.now(), comic: 0, q: 0, eaten: 0 });
+  updateCakes();
+  view("#v-start");
+}
+function showPicker() {
+  if (MASCOTS[CONFIG.onlyMascot]) return chooseMascot(CONFIG.onlyMascot);
+  $("#pick-grid").innerHTML = Object.entries(MASCOTS).map(([id, m]) =>
+    `<button class="pick" type="button" data-id="${id}"><svg viewBox="0 0 220 240" aria-hidden="true">${m.draw("vui", new Set())}</svg>
+     <div><b>${m.game}</b><span class="set">${CONFIG.questionSets[id].title}</span><span>${m.blurb}</span>${state.played && state.played.has(id) ? `<em class="played">Đã chơi ✓</em>` : ""}</div></button>`).join("");
+  document.querySelectorAll(".pick").forEach((b) => (b.onclick = () => chooseMascot(b.dataset.id)));
+  view("#v-pick");
+}
+function closeGame() { $("#game").hidden = true; document.body.style.overflow = ""; }
+document.querySelectorAll("[data-play]").forEach((b) => (b.onclick = openGame));
+$("#btn-close").onclick = closeGame;
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#game").hidden) closeGame(); });
+
+function chooseMascot(id) {
+  state.mascot = MASCOTS[id];
+  state.mascotId = id;
+  state.questions = CONFIG.questionSets[id].questions;
+  setHud(state.mascot); updateCakes();
+  if (state.isReplay) { // chơi lại: vào thẳng câu hỏi, không kể chuyện lại
+    renderStage({ mood: "thuong", items: state.items });
+    renderQuestion();
+    return view("#v-quiz");
+  }
+  renderComic();
+  view("#v-comic");
+}
+
+// Mã thiết bị: tạo 1 lần, dùng để nối các lượt chơi của cùng một người/máy
+function deviceId() {
+  let id = store("chibi_device");
+  if (!id) { id = "TB-" + Math.random().toString(36).slice(2, 8).toUpperCase(); store("chibi_device", id); }
+  return id || state.tmpDevice || (state.tmpDevice = "TB-" + Math.random().toString(36).slice(2, 8).toUpperCase());
+}
+
+/* ---------------- Truyện mở đầu ---------------- */
+function renderComic() {
+  const c = state.mascot.comic[state.comic];
+  renderStage({ mood: c.mood, place: c.place, front: c.front });
+  if (c.mood === "vui") replay($("#mascot"), "jump");
+  $("#comic-text").textContent = c.text;
+  $("#comic-step").textContent = `${state.comic + 1} / ${state.mascot.comic.length}`;
+  $("#btn-comic").textContent = state.comic === state.mascot.comic.length - 1 ? "Bắt đầu!" : "Tiếp";
+}
+$("#btn-comic").onclick = () => {
+  state.comic++;
+  if (state.comic < state.mascot.comic.length) return renderComic();
+  renderStage({ mood: "thuong", items: state.items });
+  renderQuestion();
+  view("#v-quiz");
+};
+
+/* ---------------- Câu hỏi ---------------- */
+const fill = (t) => t.replace(/\{ten\}/g, state.mascot.short);
+function renderQuestion() {
+  const Q = state.questions[state.q];
+  $("#quiz-say").textContent = fill(Q.say);
+  $("#qnum").textContent = `Câu ${state.q + 1} / ${state.questions.length}`;
+  $("#qtext").textContent = Q.q;
+  $("#opts").innerHTML = "";
+  Q.a.forEach((txt, i) => {
+    const b = document.createElement("button");
+    b.className = "opt"; b.type = "button"; b.textContent = txt;
+    const isOther = Q.other && i === Q.a.length - 1;
+    b.onclick = () => (isOther ? askOther(b, txt) : answer(b, txt));
+    $("#opts").appendChild(b);
+  });
+}
+function askOther(btn, label) {
+  if ($("#other-box")) return $("#other-input").focus();
+  btn.classList.add("picked");
+  const box = document.createElement("div");
+  box.className = "other"; box.id = "other-box";
+  box.innerHTML = `<input id="other-input" type="text" maxlength="120" placeholder="Bạn ghi cụ thể giúp mình nhé" aria-label="Câu trả lời khác"><button type="button">Xong</button>`;
+  btn.after(box);
+  const input = $("#other-input");
+  const done = () => { const v = input.value.trim(); if (v) answer(btn, `${label}: ${v}`); else input.focus(); };
+  box.querySelector("button").onclick = done;
+  input.onkeydown = (e) => { if (e.key === "Enter") done(); };
+  input.focus();
+}
+
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+async function answer(btn, txt) {
+  const Q = state.questions[state.q];
+  document.querySelectorAll(".opt, .other button, .other input").forEach((b) => (b.disabled = true));
+  btn.classList.add("picked");
+  state.answers.push({ key: Q.key, value: txt });
+  const list = rewards(state.mascot), R = list[state.q % list.length];
+  const item = state.mascot.items[state.q];
+  const fast = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (state.mascot.journey) return journeyStep(item, fast);
+  const cake = $("#cake");
+
+  // 1. Nhảy cẫng lên
+  setMood("vui"); replay($("#mascot"), "jump");
+  $("#quiz-say").textContent = R.hello || "Yeah! Có bánh rồi!";
+  await wait(fast ? 50 : 600);
+  if (R.act === "vuot") {
+    // 2. Bàn tay xoa đầu, tim bay lên
+    $("#fx").innerHTML = `<g class="pet"><g transform="translate(180 56) rotate(180) scale(1.5) translate(-30 -34)"><path d="M14 40 v-16 q0-5 5-5 q5 0 5 5 v-8 q0-5 5-5 q5 0 5 5 v4 q0-5 5-5 q5 0 5 5 v20 q0 12 -14 12 h-4 q-12 0 -12 -12z" fill="#ffd9bf" stroke="${OUT}" stroke-width="3" stroke-linejoin="round"/></g></g><g id="hearts"></g>`;
+    $("#quiz-say").textContent = R.say;
+    for (let i = 0; i < 3; i++) { setMood(i % 2 ? "thuong" : "vui"); replay($("#mascot"), "chomp"); hearts(); await wait(fast ? 50 : 500); }
+    $("#fx").innerHTML = "";
+  } else if (R.act === "choi") {
+    // 2. Đồ chơi rơi xuống, mèo vồ nhảy
+    cake.innerHTML = biteSVG(R.svg, 0, false); replay(cake, "drop");
+    setMood("ngac");
+    await wait(fast ? 50 : 500);
+    $("#quiz-say").textContent = R.say;
+    for (let i = 0; i < 2; i++) { setMood("vui"); replay($("#mascot"), "jump"); replay(cake, "chomp"); hearts(); await wait(fast ? 50 : 700); }
+    cake.innerHTML = "";
+  } else {
+    // 2. Đồ ăn rơi xuống đĩa
+    cake.innerHTML = biteSVG(R.svg, 0); replay(cake, "drop");
+    setMood("ngac");
+    await wait(fast ? 50 : 500);
+    // 3. Măm măm ba miếng
+    $("#quiz-say").textContent = R.say || `Măm măm... ${R.name} ngon quá!`;
+    for (let bite = 1; bite <= 3; bite++) {
+      setMood(bite % 2 ? "an" : "vui"); replay($("#mascot"), "chomp");
+      cake.innerHTML = biteSVG(R.svg, bite);
+      crumbs();
+      await wait(fast ? 50 : 330);
+    }
+    cake.innerHTML = "";
+  }
+  state.eaten++; updateCakes();
+  // 4. Nhận món đồ mới, nhảy thêm cái nữa
+  state.items.add(state.q);
+  renderStage({ mood: "vui", items: state.items });
+  replay($("#mascot"), "jump");
+  toast(`${itemIcon(item)}<span>${state.mascot.short} nhận được: ${item.name}!</span>`);
+  await wait(fast ? 300 : 1100);
+
+  state.q++;
+  if (state.q < state.questions.length) { setMood("thuong"); return renderQuestion(); }
+  $("#send-say").textContent = state.mascot.formSay;
+  view("#v-send");
+  submitLead();
+}
+
+async function journeyStep(item, fast) {
+  // 1. Vui mừng nhận chỉ dẫn
+  setMood("vui"); replay($("#mascot"), "jump");
+  $("#quiz-say").textContent = "Yeah! Có chỉ dẫn rồi!";
+  await wait(fast ? 50 : 600);
+  // 2. Chặng mới sáng lên, Bé Mật bay tới
+  state.items.add(state.q); state.eaten++; updateCakes();
+  renderStage({ mood: item.mood || "vui", items: state.items, step: state.q });
+  requestAnimationFrame(() => requestAnimationFrame(() => { $("#mpos").setAttribute("style", $("#mpos").getAttribute("style").replace(/transform: translate[^;]*$/, beePos(state.items.size))); }));
+  $("#bg").innerHTML = backdrop(state.mascot.place, false, state.items.size);
+  $("#quiz-say").textContent = item.say;
+  toast(`${itemIcon(item)}<span>${state.mascot.short} nhận được: ${item.name}!</span>`);
+  await wait(fast ? 300 : 1500);
+
+  state.q++;
+  if (state.q < state.questions.length) { setMood("thuong"); return renderQuestion(); }
+  if (state.mascot.help) return renderHelp(state.mascot.help);
+  $("#send-say").textContent = state.mascot.formSay;
+  view("#v-send");
+  submitLead();
+}
+
+function renderHelp(H) {
+  setMood("vui"); replay($("#mascot"), "jump");
+  $("#quiz-say").textContent = H.say;
+  $("#qnum").textContent = "Bé Mật hỏi nhỏ nè";
+  $("#qtext").textContent = H.q;
+  const box = $("#opts"); box.innerHTML = "";
+  const picked = new Set();
+  const go = document.createElement("button");
+  go.className = "btn"; go.type = "button"; go.textContent = "Gửi cho Bé Mật"; go.disabled = true; go.style.marginTop = "6px";
+  [...H.a, H.none].forEach((txt) => {
+    const b = document.createElement("button");
+    b.className = "opt"; b.type = "button"; b.textContent = txt; b.setAttribute("aria-pressed", "false");
+    b.onclick = () => {
+      const on = !picked.has(txt);
+      if (txt === H.none || picked.has(H.none)) { picked.clear(); box.querySelectorAll(".opt").forEach((o) => { o.classList.remove("picked"); o.setAttribute("aria-pressed", "false"); }); }
+      if (on) picked.add(txt); else picked.delete(txt);
+      b.classList.toggle("picked", on); b.setAttribute("aria-pressed", String(on));
+      go.disabled = picked.size === 0;
+    };
+    box.appendChild(b);
+  });
+  go.onclick = async () => {
+    box.querySelectorAll("button").forEach((b) => (b.disabled = true));
+    state.answers.push({ key: H.key, value: [...H.a, H.none].filter((t) => picked.has(t)).join("; ") });
+    setMood("vui"); replay($("#mascot"), "jump");
+    $("#quiz-say").textContent = picked.has(H.none) ? "Không sao nè, Bé Mật gửi bạn tài liệu học thêm nha!" : "Bé Mật nhớ rồi! Cả nhà ong sẽ cùng giúp bạn!";
+    await wait(matchMedia("(prefers-reduced-motion: reduce)").matches ? 200 : 1200);
+    $("#send-say").textContent = state.mascot.formSay;
+    view("#v-send");
+    submitLead();
+  };
+  box.appendChild(go);
+}
+
+function hearts() {
+  const box = $("#hearts") || $("#fx");
+  box.insertAdjacentHTML("beforeend", Array.from({ length: 4 }, () => {
+    const x = 130 + Math.random() * 100, y = 60 + Math.random() * 60, dx = Math.round((Math.random() - .5) * 50), dy = Math.round(-30 - Math.random() * 40);
+    return `<path class="crumb" transform="translate(${x} ${y}) scale(.4)" d="M30 50 C6 34 8 12 20 12 C26 12 30 18 30 21 C30 18 34 12 40 12 C52 12 54 34 30 50 Z" fill="#ff6f91" style="--dx:${dx}px;--dy:${dy}px"/>`;
+  }).join(""));
+}
+function crumbs() {
+  const fx = $("#fx");
+  fx.innerHTML = Array.from({ length: 6 }, () => {
+    const dx = Math.round((Math.random() - .5) * 70), dy = Math.round(-10 - Math.random() * 40);
+    return `<circle class="crumb" cx="${180 + Math.random() * 20}" cy="${220 + Math.random() * 10}" r="${2 + Math.random() * 2.5}" fill="#e3a35d" style="--dx:${dx}px;--dy:${dy}px"/>`;
+  }).join("");
+}
+
+let toastTimer;
+function toast(html) {
+  const t = $("#toast"); t.innerHTML = html; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 1600);
+}
+
+/* ---------------- Form + gửi data ---------------- */
+$("#lead-form").onsubmit = (e) => {
+  e.preventDefault();
+  const f = Object.fromEntries(new FormData(e.target).entries());
+  const name = (f.name || "").trim();
+  const age = parseInt(f.age, 10);
+  const job = (f.job || "").trim();
+  const email = (f.email || "").trim().toLowerCase();
+  const phone = (f.phone || "").replace(/[\s.\-()]/g, "").replace(/^\+84/, "0").replace(/^84(?=\d{9}$)/, "0");
+  const err = $("#form-err");
+  if (!name) return (err.textContent = "Bạn nhập tên giúp mình nhé.");
+  if (!(age >= 10 && age <= 99)) return (err.textContent = "Tuổi cần là một số từ 10 đến 99.");
+  if (job.length < 2) return (err.textContent = "Bạn ghi nghề nghiệp giúp mình nhé.");
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) return (err.textContent = "Email chưa đúng, ví dụ ten@gmail.com.");
+  if (phone && !/^0\d{9}$/.test(phone)) return (err.textContent = "Số điện thoại cần 10 số, hoặc để trống.");
+  if (!f.consent) return (err.textContent = "Bạn cần đồng ý chính sách dữ liệu để chơi.");
+  err.textContent = "";
+  state.lead = { name, age, job, email, phone, website: f.website || "" };
+  store("chibi_lead", state.lead);
+  state.startedAt = Date.now();
+  showPicker();
+};
+
+const ageGroup = (a) => (a < 18 ? "Dưới 18" : a < 25 ? "18 – 24" : a < 35 ? "25 – 34" : a < 45 ? "35 – 44" : "Từ 45 trở lên");
+
+async function submitLead() {
+  const L = state.lead;
+  const params = new URLSearchParams(location.search);
+  const payload = {
+    name: L.name, age: L.age, job: L.job, email: L.email, phone: L.phone,
+    device: deviceId(), round: (store("chibi_rounds") || 0) + 1, replay: !!state.isReplay,
+    answers: [{ key: "Nhóm tuổi", value: L.age ? ageGroup(L.age) : "" }, { key: "Linh vật chọn", value: state.mascot.name }, { key: "Bộ câu hỏi", value: CONFIG.questionSets[state.mascotId].title }, ...state.answers],
+    source: params.get("utm_source") || (document.referrer ? new URL(document.referrer).hostname : "Trực tiếp"),
+    campaign: params.get("utm_campaign") || "",
+    deviceType: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "Điện thoại" : "Máy tính",
+    duration: Math.round((Date.now() - state.startedAt) / 1000),
+    consent: "Đồng ý",
+    website: L.website, // bẫy chống bot, người thật để trống
+  };
+  store("chibi_rounds", payload.round);
+  await Promise.all([sendLead(payload), wait(1200)]);
+  const result = { name: L.name, email: L.email, mascot: state.mascotId };
+  store("chibi_result", result);
+  showDone(result, true);
+}
+
+async function sendLead(payload) {
+  if (!CONFIG.scriptUrl) {
+    const list = store("chibi_demo_leads") || [];
+    list.push({ time: new Date().toISOString(), ...payload });
+    store("chibi_demo_leads", list);
+    console.info("[Demo] Chưa có scriptUrl nên data chỉ lưu trên trình duyệt:", payload);
+    return;
+  }
+  try {
+    // text/plain để Apps Script nhận mà không cần CORS preflight
+    await fetch(CONFIG.scriptUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+  } catch {
+    const q = store("chibi_retry") || []; q.push(payload); store("chibi_retry", q);
+  }
+}
+(function retryPending() {
+  const q = store("chibi_retry");
+  if (!q || !q.length || !CONFIG.scriptUrl) return;
+  store("chibi_retry", []);
+  q.forEach(sendLead);
+})();
+
+/* ---------------- Kết quả ---------------- */
+function showDone(r, celebrate = false) {
+  state.mascot = MASCOTS[r.mascot]; state.mascotId = r.mascot;
+  state.played = new Set([...(store("chibi_played") || []), r.mascot]);
+  store("chibi_played", [...state.played]);
+  state.items = new Set(state.mascot.items.map((_, i) => i));
+  state.eaten = rewards(state.mascot).length; setHud(state.mascot); updateCakes();
+  view("#v-done");
+  renderStage({ mood: "vui", items: state.items, party: true });
+  replay($("#mascot"), "jump");
+  $("#done-title").textContent = state.mascot.doneTitle;
+  $("#done-name").textContent = r.name;
+  if (celebrate) confetti();
+}
+
+$("#btn-replay").onclick = () => {
+  const prev = store("chibi_result") || {};
+  // Máy đã chơi từ bản cũ chưa lưu đủ thông tin: dùng tên trong kết quả, không hỏi lại
+  state.lead = state.lead || store("chibi_lead") || { name: prev.name || "", age: "", job: "", email: prev.email || "", phone: "", website: "" };
+  state.isReplay = true;
+  Object.assign(state, { mascot: null, items: new Set(), answers: [], startedAt: Date.now(), comic: 0, q: 0, eaten: 0 });
+  setHud(null); updateCakes();
+  showPicker();
+};
+
+$("#btn-site").onclick = (e) => {
+  if (CONFIG.websiteUrl) { $("#btn-site").href = CONFIG.websiteUrl; return; }
+  e.preventDefault(); closeGame(); // chưa có link: quay về trang giới thiệu
+};
+
+function confetti() {
+  const colors = ["#e8577a", "#f2a31b", "#5ab9a8", "#b9a2f0"];
+  for (let i = 0; i < 70; i++) {
+    const c = document.createElement("i");
+    c.className = "confetti";
+    c.style.left = Math.random() * 100 + "vw";
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = 2 + Math.random() * 2 + "s";
+    c.style.animationDelay = Math.random() * 0.4 + "s";
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4600);
+  }
+}
+</script>
+</body>
+</html>

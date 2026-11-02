@@ -250,7 +250,7 @@ input:focus { outline: none; border-color: var(--leaf); }
         <label for="f-email">Email<input id="f-email" name="email" type="email" autocomplete="email" required></label>
         <div class="hp" aria-hidden="true"><label for="f-website">Website<input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
         <label class="consent" for="f-consent"><input id="f-consent" type="checkbox" name="consent">
-          <span>Đồng ý cho lưu thông tin để liên hệ khi tôi cần (<a href="#" data-policy>chính sách</a>)</span></label>
+          <span>Tôi đồng ý để <b data-brand></b> lưu tên, tuổi, nghề, email và câu trả lời của tôi để tư vấn dịch vụ. Không chia sẻ cho bên khác, xoá khi tôi yêu cầu. <a href="#" data-policy target="_blank" rel="noopener">Chính sách bảo mật</a></span></label>
         <div class="err" id="form-err" role="alert"></div>
         <button class="btn" type="submit">Gieo hạt thôi!</button>
       </form>
@@ -286,42 +286,42 @@ input:focus { outline: none; border-color: var(--leaf); }
 const CONFIG = {
   brandName: "Thương hiệu của chị",
   contact: "huengoc161@gmail.com",
-  policyUrl: "#",
+  policyUrl: "../chinh-sach.html",
   // Dán URL Web App Google Apps Script vào đây (cùng link với game chính). Để trống = chế độ demo.
   scriptUrl: "https://script.google.com/macros/s/AKfycbyDTd5MOax8zDxxxki6C7tEBx6sq8mQmqdGhHdjgwcSQDO-aKLxyWPBdis3lGKXRUpvMw/exec",
   setTitle: "Dành cho người muốn bắt đầu kinh doanh",
   // Mỗi câu = một lần chăm sóc. key: tên cột trong Google Sheet (giữ giống game chính).
   // say: Bé Đậu hỏi. care: việc chăm sóc. done: Bé Đậu nói sau khi được chăm. other: true = lựa chọn cuối cho khách tự ghi.
   questions: [
-    { key: "Giai đoạn khởi nghiệp", care: "water",
-      say: "Ước mơ kinh doanh cũng giống hạt đậu vậy đó, cần được ươm từ từ. Của bạn đang ở đâu rồi?",
-      q: "Bạn đang ở giai đoạn nào?",
-      a: ["Mới có ý tưởng", "Sẽ mở trong 3 tháng tới", "Đã bán thử vài đơn", "Đang đi làm, muốn bán thêm online"],
-      done: "Nước mát quá! Bé Đậu thức dậy rồi nè!" },
-    { key: "Sản phẩm dự định", care: "fert",
-      say: "Kể Bé Đậu nghe đi, bạn định bán gì nè?",
+    { key: "Sản phẩm dự định", care: "water",
+      say: "Ước mơ kinh doanh cũng giống hạt đậu, cần được ươm từ từ. Bạn định bán gì nè?",
       q: "Bạn định kinh doanh sản phẩm hay dịch vụ gì?",
       a: ["Thời trang, mỹ phẩm", "Đồ ăn, thức uống", "Khoá học, dịch vụ", "Đồ handmade, quà tặng", "Khác"], other: true,
+      done: "Nước mát quá! Bé Đậu thức dậy rồi nè!" },
+    { key: "Dịch vụ cần nhất", care: "fert",
+      say: "Hạt đậu cần phân bón, shop mới cần người giúp một tay. Bạn cần phần nào nhất?",
+      q: "Để bắt đầu bán, bạn cần hỗ trợ phần nào nhất?",
+      a: ["Dựng fanpage và nội dung", "Làm video ngắn TikTok, Reels", "Làm website bán hàng", "Chạy quảng cáo ra đơn đầu tiên", "Xây thương hiệu từ đầu (tên, logo, câu chuyện)"],
       done: "Phân bón thơm ghê! Mầm của mình nhú ra rồi!" },
-    { key: "Nền tảng muốn bán", care: "sun",
-      say: "Cây cần chỗ có nắng, shop cần chỗ để bán. Bạn muốn bán ở đâu?",
-      q: "Bạn muốn bán hàng chủ yếu trên nền tảng nào?",
-      a: ["TikTok Shop", "Shopee / Lazada", "Facebook / Zalo", "Website riêng", "Cửa hàng truyền thống"],
+    { key: "Thời điểm cần", care: "sun",
+      say: "Cây nào cũng có mùa của nó. Còn bạn định khi nào bắt đầu?",
+      q: "Khi nào bạn định bắt đầu bán?",
+      a: ["Cần ngay, sắp mở bán", "Trong 1 – 3 tháng tới", "Còn đang tìm hiểu", "Đã bán rồi, tự làm được"],
       done: "Nắng ấm quá, mình có hai lá mầm rồi!" },
-    { key: "Làm video TikTok/Reels", care: "weed",
-      say: "Lá mình xanh lại rồi nè! Mà nghe nói video ngắn giúp nhiều người biết đến shop lắm đó.",
-      q: "Bạn có muốn đăng video ngắn (TikTok, Reels) để bán hàng không?",
-      a: ["Có, tôi tự quay được", "Muốn làm nhưng ngại lên hình", "Muốn thuê người làm giúp", "Không muốn làm video"],
+    { key: "Ngân sách hằng tháng", care: "weed",
+      say: "Lá mình xanh lại rồi nè! Lúc mới bắt đầu, bạn tính dành bao nhiêu cho marketing?",
+      q: "Mỗi tháng bạn có thể chi bao nhiêu cho marketing lúc mới bắt đầu?",
+      a: ["Dưới 800 nghìn", "800 nghìn – 1,5 triệu", "1,5 – 5 triệu", "5 – 10 triệu", "Trên 10 triệu"],
       done: "Hết cỏ dại rồi, Bé Đậu cao vèo vèo!" },
-    { key: "Cần website", care: "stake",
-      say: "Cây đậu cần giàn tre để leo, shop cần website để đứng vững. Còn bạn thì sao?",
-      q: "Bạn có cần website riêng cho doanh nghiệp không?",
-      a: ["Cần ngay khi bắt đầu", "Cần, nhưng để sau", "Chưa biết website giúp được gì", "Không cần"],
+    { key: "Kênh muốn được tư vấn", care: "stake",
+      say: "Bé Đậu sắp ra hoa! Khi cần, mình nhờ người tới giúp bạn qua đâu nè?",
+      q: "Nếu cần tư vấn, bạn muốn được liên hệ qua đâu?",
+      a: ["Zalo", "Gọi điện", "Email", "Không cần liên hệ"],
       done: "Có giàn tre để bám, mình ra hoa rồi nè!" },
-    { key: "Nỗi lo khi bắt đầu", care: "harvest",
-      say: "Bé Đậu sắp ra quả rồi! Bắt đầu một việc mới ai cũng có nỗi lo. Bạn lo nhất điều gì?",
-      q: "Điều bạn lo nhất khi bắt đầu kinh doanh là gì?",
-      a: ["Không biết tìm khách ở đâu", "Sợ tốn tiền quảng cáo mà không ra đơn", "Không biết xây thương hiệu từ đâu", "Làm một mình, thiếu thời gian", "Thiếu vốn"],
+    { key: "Việc muốn được giúp", type: "text", care: "harvest",
+      say: "Sắp ra quả rồi! Bắt đầu việc mới ai cũng có nỗi lo, kể Bé Đậu nghe nha.",
+      q: "Điều bạn lo nhất khi bắt đầu kinh doanh là gì? Bạn ghi ngắn thôi cũng được.",
+      placeholder: "VD: không biết tìm khách đầu tiên ở đâu",
       done: "Đừng lo, có Bé Đậu đồng hành! Mình ra quả rồi nè!" },
   ],
   story: [
@@ -688,11 +688,12 @@ $("#garden").innerHTML = gardenBG();
 $("#weeds").innerHTML = weedsSVG();
 drawBean();
 document.querySelectorAll("[data-brand]").forEach(e => e.textContent = CONFIG.brandName);
-document.querySelectorAll("[data-policy]").forEach(e => { e.href = CONFIG.policyUrl; if (CONFIG.policyUrl !== "#") e.target = "_blank"; });
+document.querySelectorAll("[data-policy]").forEach(e => { e.href = CONFIG.policyUrl; });
 
 /* ---------------- Truyện mở đầu ---------------- */
 $("#btn-play").addEventListener("click", () => {
   state.startedAt = Date.now();
+  track("2 Bấm Play");
   const prevLead = store("chibi_lead");
   if (prevLead && prevLead.email) { state.lead = prevLead; state.isReplay = true; startQuiz(); return; }
   state.page = 0; renderComic();
@@ -793,6 +794,7 @@ $("#btn-comic").addEventListener("click", () => {
   state.mood = "thuong"; drawBean("hop");
   say("Người nông dân tốt bụng ơi, cho Bé Đậu biết tên bạn nhé!");
   view("v-form");
+  track("2b Mở form");
 });
 function renderStory() {
   const s = CONFIG.story[state.storyIdx];
@@ -809,7 +811,7 @@ $("#btn-story").addEventListener("click", () => {
 });
 
 /* ---------------- Form ---------------- */
-function ageGroup(a) { return a < 18 ? "Dưới 18" : a <= 24 ? "18–24" : a <= 34 ? "25–34" : a <= 44 ? "35–44" : "45+"; }
+const ageGroup = (a) => (a < 18 ? "Dưới 18" : a < 25 ? "18 – 24" : a < 35 ? "25 – 34" : a < 45 ? "35 – 44" : "Từ 45 trở lên");
 $("#lead-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const f = Object.fromEntries(new FormData(e.target));
@@ -820,16 +822,18 @@ $("#lead-form").addEventListener("submit", (e) => {
   if (!(age >= 10 && age <= 99)) return err("Tuổi chưa đúng, bạn kiểm tra lại nhé.");
   if (!f.job.trim()) return err("Bạn cho biết nghề nghiệp nhé.");
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim())) return err("Email chưa đúng định dạng.");
-  if (!$("#f-consent").checked) return err("Bạn tick đồng ý giúp Bé Đậu nhé.");
+  if (!$("#f-consent").checked) return err("Bạn cần tích ô đồng ý lưu thông tin để chơi tiếp nhé.");
   err("");
   state.lead = { name: f.name.trim(), age, job: f.job.trim(), email: f.email.trim().toLowerCase(), phone, website: f.website || "" };
   store("chibi_lead", { ...state.lead, website: "" });
+  track("3 Gửi form");
   startQuiz();
 });
 
 /* ---------------- Câu hỏi ---------------- */
 function startQuiz() {
-  state.q = 0; state.stage = 0; state.answers = []; state.mood = "ngu"; state.busy = false;
+  state.q = 0; state.stage = 0; state.answers = []; state.picks = []; state.mood = "ngu"; state.busy = false;
+  track("4 Chọn trò chơi"); // giữ đủ các bước phễu như game chính (Bé Đậu vào thẳng, không có màn chọn)
   $("#weeds").innerHTML = weedsSVG(); setSun(false); drawProps(); drawBean();
   updateHud(); renderQuestion();
 }
@@ -841,14 +845,35 @@ function renderQuestion() {
   $("#qnum").textContent = `Câu ${state.q + 1}/${CONFIG.questions.length} · ${TOOLS[Q.care].name}`;
   $("#qtext").textContent = Q.q;
   $("#opts").innerHTML = "";
+  state.qShownAt = Date.now();
+  track("Câu " + (state.q + 1));
+  if (Q.type === "text") { view("v-quiz"); return renderTextQuestion(Q); }
   Q.a.forEach((txt, i) => {
     const b = document.createElement("button");
     b.className = "opt"; b.type = "button"; b.textContent = txt;
     const isOther = Q.other && i === Q.a.length - 1;
-    b.addEventListener("click", () => isOther ? askOther(b) : answer(b, txt));
+    b.addEventListener("click", () => isOther ? askOther(b) : answer(b, txt, i));
     $("#opts").appendChild(b);
   });
   view("v-quiz");
+}
+// Câu tự ghi: cần ít nhất 3 chữ cái, giúp lọc người bấm đại cho qua màn
+function renderTextQuestion(Q) {
+  const box = document.createElement("div");
+  box.className = "other"; box.id = "other-box";
+  box.innerHTML = `<input id="other-input" type="text" maxlength="200" aria-label="${Q.q.replace(/"/g, "")}"><button type="button">Gửi</button>`;
+  $("#opts").appendChild(box);
+  const input = $("#other-input"), btn = box.querySelector("button");
+  input.placeholder = Q.placeholder || "Bạn ghi ngắn giúp Bé Đậu nhé";
+  const hint = document.createElement("p"); hint.className = "err"; $("#opts").appendChild(hint);
+  const done = () => {
+    const v = input.value.trim();
+    if (v.replace(/[^\p{L}]/gu, "").length < 3) { hint.textContent = "Bạn ghi thêm vài chữ giúp Bé Đậu nhé."; return input.focus(); }
+    answer(btn, v, -1);
+  };
+  btn.onclick = done;
+  input.onkeydown = (e) => { if (e.key === "Enter") done(); };
+  setTimeout(() => input.focus(), 50);
 }
 function askOther(btn) {
   if ($("#other-box")) return;
@@ -856,15 +881,16 @@ function askOther(btn) {
   box.innerHTML = `<input id="other-input" type="text" maxlength="120" placeholder="Bạn ghi cụ thể giúp Bé Đậu nhé" aria-label="Câu trả lời khác"><button type="button">Xong</button>`;
   btn.after(box); btn.classList.add("picked");
   const inp = box.querySelector("input"); inp.focus();
-  const go = () => { const v = inp.value.trim(); if (!v) { inp.focus(); return; } answer(btn, "Khác: " + v); };
+  const go = () => { const v = inp.value.trim(); if (!v) { inp.focus(); return; } answer(btn, "Khác: " + v, -1); };
   box.querySelector("button").addEventListener("click", go);
   inp.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
 }
-async function answer(btn, txt) {
+async function answer(btn, txt, idx = -1) {
   if (state.busy) return; state.busy = true;
   const Q = CONFIG.questions[state.q];
-  document.querySelectorAll(".opt").forEach(o => o.disabled = true); btn.classList.add("picked");
+  document.querySelectorAll(".opt, .other button, .other input").forEach(o => o.disabled = true); btn.classList.add("picked");
   state.answers.push({ key: Q.key, value: txt });
+  state.picks.push({ idx, type: Q.type || "choice", ms: Date.now() - (state.qShownAt || Date.now()), text: Q.type === "text" ? txt : "" });
   hush();
   await care(Q.care);
   state.q++; state.stage = state.q; state.mood = "vui";
@@ -895,13 +921,16 @@ async function care(kind) {
 /* ---------------- Gửi data & kết quả ---------------- */
 async function finish() {
   view("v-send"); say("Bé Đậu đang hái quả, chờ xíu nha!");
+  track("Hoàn thành");
   const L = state.lead;
   const params = new URLSearchParams(location.search);
   const payload = {
     name: L.name, age: L.age, job: L.job, email: L.email, phone: L.phone,
     device: deviceId(), round: (store("chibi_rounds") || 0) + 1, replay: !!state.isReplay,
     answers: [{ key: "Nhóm tuổi", value: L.age ? ageGroup(L.age) : "" }, { key: "Linh vật chọn", value: "Bé Đậu" }, { key: "Bộ câu hỏi", value: CONFIG.setTitle }, ...state.answers],
-    source: params.get("utm_source") || (document.referrer ? new URL(document.referrer).hostname : "Trực tiếp"),
+    flags: qualityFlags(),
+    session: sessionId(),
+    source: sourceOf(),
     campaign: params.get("utm_campaign") || "",
     deviceType: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "Điện thoại" : "Máy tính",
     duration: Math.round((Date.now() - state.startedAt) / 1000),
@@ -914,6 +943,36 @@ async function finish() {
   store("chibi_result", result);
   showDone(result);
 }
+// Cờ chất lượng: đánh dấu lượt có dấu hiệu bấm đại (giống game chính)
+function qualityFlags() {
+  const choice = state.picks.filter((p) => p.type === "choice");
+  const flags = [];
+  if (choice.length >= 3 && choice.every((p) => p.idx === 0)) flags.push("Toàn đáp án đầu");
+  const ms = state.picks.map((p) => p.ms).filter((x) => x > 0);
+  if (ms.length >= 3 && ms.reduce((a, b) => a + b, 0) / ms.length < 2500) flags.push("Trả lời quá nhanh");
+  const t = state.picks.find((p) => p.type === "text");
+  if (t && /^(.)\1+$|^(a+s+d+f*|abc|123|test|ok|không|ko|k)$/i.test(t.text.replace(/\s/g, ""))) flags.push("Câu tự ghi vô nghĩa");
+  return flags.join("; ");
+}
+// Phễu: trước khi khách đồng ý chỉ gửi mã phiên ẩn danh, không gửi mã thiết bị.
+function sessionId() { return state.session || (state.session = "S" + Date.now().toString(36).slice(-5).toUpperCase() + Math.random().toString(36).slice(2, 5).toUpperCase()); }
+function sourceOf() {
+  const p = new URLSearchParams(location.search);
+  let ref = ""; try { ref = document.referrer ? new URL(document.referrer).hostname : ""; } catch {}
+  return p.get("utm_source") || (ref && ref !== location.hostname ? ref : "Trực tiếp");
+}
+function track(step) {
+  if (!CONFIG.scriptUrl || new URLSearchParams(location.search).has("giaidoan")) return;
+  state.tracked = state.tracked || new Set();
+  if (state.tracked.has(step)) return; state.tracked.add(step);
+  const body = JSON.stringify({ type: "event", step, session: sessionId(), device: state.lead ? deviceId() : "", game: "Bé Đậu", source: sourceOf(), campaign: new URLSearchParams(location.search).get("utm_campaign") || "", replay: !!state.isReplay });
+  try {
+    if (navigator.sendBeacon && navigator.sendBeacon(CONFIG.scriptUrl, new Blob([body], { type: "text/plain;charset=utf-8" }))) return;
+  } catch {}
+  fetch(CONFIG.scriptUrl, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain;charset=utf-8" }, body }).catch(() => {});
+}
+track("1 Mở trang");
+
 function deviceId() {
   let id = store("chibi_device");
   if (!id) { id = "TB-" + Math.random().toString(36).slice(2, 8).toUpperCase(); store("chibi_device", id); }
@@ -948,7 +1007,7 @@ function confetti() {
     $("#app").appendChild(c); setTimeout(() => c.remove(), 4200);
   }
 }
-$("#btn-replay").addEventListener("click", () => { state.isReplay = true; state.startedAt = Date.now(); startQuiz(); });
+$("#btn-replay").addEventListener("click", () => { state.isReplay = true; state.tracked = new Set(); state.startedAt = Date.now(); startQuiz(); });
 $("#btn-share") && $("#btn-share").addEventListener("click", async () => {
   const data = { title: "Vườn của Bé Đậu", text: "Chơi 2 phút chăm Bé Đậu lớn lên trong khu vườn quê!", url: location.href.split("?")[0] };
   try { if (navigator.share) { await navigator.share(data); return; } await navigator.clipboard.writeText(data.url); $("#share-note").textContent = "Đã sao chép link, gửi bạn bè nhé!"; }
@@ -964,7 +1023,7 @@ $("#btn-share") && $("#btn-share").addEventListener("click", async () => {
   drawProps(); drawBean(); updateHud(); say(CONFIG.questions[Math.max(0, state.q - 1)].done);
   const Q = CONFIG.questions[Math.min(state.q, 5)];
   $("#qnum").textContent = `Câu ${Math.min(state.q, 5) + 1}/6 · ${TOOLS[Q.care].name}`; $("#qtext").textContent = Q.q;
-  $("#opts").innerHTML = Q.a.map(t => `<button class="opt" type="button">${t}</button>`).join(""); view("v-quiz");
+  $("#opts").innerHTML = Q.a ? Q.a.map(t => `<button class="opt" type="button">${t}</button>`).join("") : `<div class="other"><input type="text" placeholder="${Q.placeholder}"><button type="button">Gửi</button></div>`; view("v-quiz");
 })();
 </script>
 </body>
